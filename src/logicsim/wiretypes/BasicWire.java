@@ -1,22 +1,36 @@
 package logicsim.wiretypes;
 
 import logicsim.*;
+import processing.core.PGraphics;
+
+import java.util.Arrays;
 
 public class BasicWire extends WireType {
   private static WireType WIRE = new BasicWire();
   public static WireType[] TWO_WIRES = new WireType[]{WIRE, WIRE};
   public static WireType[] ONE_WIRE = new WireType[]{WIRE};
   public static WireType[] NOTHING = new WireType[]{};
+  private static Connection NO_CONNECTION = new BasicConnection(null, -1) {
+    @Override
+    public String toString() {
+      return "SINKHOLE "+super.toString();
+    }
+  };
   
   @Override
-  public Connection newConnection(Gate g) {
-    return new BasicConnection(g);
+  public Connection noConnection() {
+    return NO_CONNECTION;
+  }
+  
+  @Override
+  public Connection newConnection(Gate g, int ip) {
+    return new BasicConnection(g, ip);
   }
   public static class BasicConnection extends Connection {
-    public boolean b;
+    public boolean b = false;
   
-    BasicConnection(Gate g) {
-      super(g);
+    BasicConnection(Gate in, int ip) {
+      super(in, ip);
     }
   
     public void set(boolean b) {
@@ -25,5 +39,17 @@ public class BasicWire extends WireType {
         for (Gate g : out) g.warn();
       }
     }
+  
+    @Override
+    public void draw(PGraphics g, float x, float y, float x2, float y2) {
+      if (b) g.stroke(Main.ON_COLOR);
+      else g.stroke(Main.OFF_COLOR);
+      g.line(x, y, x2, y2);
+    }
+    @Override
+    public String toString() {
+      return "bw @" + Integer.toHexString(hashCode()) + Arrays.toString(out);
+    }
   }
+  
 }
