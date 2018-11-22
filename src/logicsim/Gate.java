@@ -136,6 +136,6 @@ public abstract class Gate {
   }
   
   protected abstract static class GateHandler {
-    protected abstract Gate createFrom(Scanner s);
+    protected abstract Gate createFrom(Scanner s) throws LoadException;
   }
 }

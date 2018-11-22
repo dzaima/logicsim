@@ -8,8 +8,11 @@ import java.util.Scanner;
 import static logicsim.wiretypes.BasicWire.*;
 
 public class SwitchGate extends Gate {
-  public SwitchGate(float x, float y) {
+  private final String name;
+  
+  public SwitchGate(float x, float y, String name) {
     super(NOTHING, ONE_WIRE, x, y);
+    this.name = name;
     ips = new PVector[0];
     ops = new PVector[]{new PVector(45, 0)};
   }
@@ -19,7 +22,8 @@ public class SwitchGate extends Gate {
       @Override
       protected Gate createFrom(Scanner s) {
         String[] a = s.nextLine().split(" ");
-        return new SwitchGate(Float.parseFloat(a[0]), Float.parseFloat(a[1]));
+        String name = s.nextLine();
+        return new SwitchGate(Float.parseFloat(a[0]), Float.parseFloat(a[1]), name);
       }
     };
   }
@@ -40,7 +44,7 @@ public class SwitchGate extends Gate {
   
   @Override
   public Gate cloneCircuit(float x, float y) {
-    return new SwitchGate(x, y);
+    return new SwitchGate(x, y, name);
   }
   
   @Override

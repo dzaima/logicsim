@@ -6,7 +6,7 @@ import processing.core.PGraphics;
 import java.util.Arrays;
 
 public class BasicWire extends WireType {
-  private static WireType WIRE = new BasicWire();
+  public static WireType WIRE = new BasicWire();
   public static WireType[] TWO_WIRES = new WireType[]{WIRE, WIRE};
   public static WireType[] ONE_WIRE = new WireType[]{WIRE};
   public static WireType[] NOTHING = new WireType[]{};

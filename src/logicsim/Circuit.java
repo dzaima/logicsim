@@ -3,7 +3,6 @@ package logicsim;
 import org.jetbrains.annotations.Contract;
 import processing.core.*;
 
-import java.text.CharacterIterator;
 import java.util.*;
 
 public class Circuit {
@@ -162,13 +161,14 @@ public class Circuit {
   }
   
   
-  void importStr(Scanner sc, float x, float y) {
+  HashMap<Integer, Gate> importStr(Scanner sc, float x, float y) throws LoadException {
     try {
       unselectAll();
       HashMap<Integer, Gate> m = new HashMap<>();
       int gam = Integer.parseInt(sc.nextLine());
       for (int i = 0; i < gam; i++) {
         String name = sc.nextLine();
+        if (!Main.handlers.containsKey(name)) throw new LoadException("No gate "+name+" found in the library");
         Gate g = Main.handlers.get(name).createFrom(sc);
         m.put(i, g);
         g.x+= x;
@@ -185,8 +185,9 @@ public class Circuit {
         int ii = Integer.parseInt(ln[3]);
         ig.setInput(ii, og.os[oi]);
       }
+      return m;
     } catch (NumberFormatException e) {
-      e.printStackTrace();
+      throw new LoadException("badly formatted input");
     }
   }
   
@@ -226,7 +227,12 @@ public class Circuit {
   
   public Circuit copy() {
     Circuit n = new Circuit();
-    n.importStr(new Scanner(exportStr(gates)), 0, 0);
+    try {
+      n.importStr(new Scanner(exportStr(gates)), 0, 0);
+    } catch (LoadException e) {
+      e.printStackTrace();
+      throw new IllegalStateException("Circuit::copy failed to export & import");
+    }
     return n;
   }
   

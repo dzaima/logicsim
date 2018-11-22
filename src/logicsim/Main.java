@@ -23,8 +23,9 @@ public class Main extends PApplet {
   public static int ON_LAMP = 0xff2090e0;
   public static int OFF_LAMP = 0xffffffff;
   public static Set<Gate> next;
-  private static Circuit board;
+  static Circuit board;
   private SelectionCircuit selection;
+  public static HashMap<String, CustomGateFactory> gateLibrary;
   static HashMap<String, Gate.GateHandler> handlers;
   static public void main(String[] passedArgs) {
     handlers = new HashMap<>();
@@ -34,6 +35,8 @@ public class Main extends PApplet {
     handlers.put("NandGate", NandGate.handler());
     handlers.put("AndGate", AndGate.handler());
     handlers.put("ButtonGate", ButtonGate.handler());
+    handlers.put("CustomGate", CustomGate.handler());
+    gateLibrary = new HashMap<>();
     String[] appletArgs = new String[]{"logicsim.Main"};
     if (passedArgs != null) {
       PApplet.main(concat(appletArgs, passedArgs));
@@ -54,8 +57,8 @@ public class Main extends PApplet {
       new TrueGate(100, 50),
       new NandGate(100, 100),
       new AndGate(100, 150),
-      new SwitchGate(100, 420),
-      new LampGate(100, 490),
+      new SwitchGate(100, 420, ""),
+      new LampGate(100, 490, ""),
       new ButtonGate(100, 550)
     );
 //    TrueGate tg = new TrueGate(100, 200);
@@ -140,25 +143,25 @@ public class Main extends PApplet {
   
   @Override
   public void keyPressed(KeyEvent e) {
-    shiftPressed = e.isShiftDown();
+    shiftPressed = e.isShiftDown(); // save selection
     if (key == 3 && keyCode == 67) {
       StringSelection selection = new StringSelection(Circuit.exportStr(board.selected));
       Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
       clipboard.setContents(selection, selection);
     }
-    if (key == 22 && keyCode == 86) {
+    if (key == 22 && keyCode == 86) { // load clip
       try {
         String s = (String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
         board.importStr(new Scanner(s), board.fmX(mouseX), board.fmY(mouseY));
-      } catch (UnsupportedFlavorException | IOException err) {
+      } catch (LoadException | UnsupportedFlavorException | IOException err) {
         err.printStackTrace();
       }
     }
-    if (key == 9 && keyCode == 73) {
+    if (key == 9 && keyCode == 73) { // load IC
       try {
         String s = (String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
-        board.importStr(new Scanner(s), board.fmX(mouseX), board.fmY(mouseY));
-      } catch (UnsupportedFlavorException | IOException err) {
+        CustomGateFactory.load(new Scanner(s));
+      } catch (LoadException | UnsupportedFlavorException | IOException err) {
         err.printStackTrace();
       }
     }
@@ -171,15 +174,19 @@ public class Main extends PApplet {
         board.add(new NandGate(board.fmX(mouseX), board.fmY(mouseY)));
         break;
       case '3':
-        board.add(new SwitchGate(board.fmX(mouseX), board.fmY(mouseY)));
+        board.add(new SwitchGate(board.fmX(mouseX), board.fmY(mouseY), ""));
         break;
       case '4':
-        board.add(new LampGate(board.fmX(mouseX), board.fmY(mouseY)));
+        board.add(new LampGate(board.fmX(mouseX), board.fmY(mouseY), ""));
         break;
-      case 'i':
+      case 'i': // create IC
         String s = Circuit.exportStr(board.selected);
         Circuit ic = new Circuit();
-        ic.importStr(new Scanner(s), 0, 0);
+        try {
+          ic.importStr(new Scanner(s), 0, 0);
+        } catch (LoadException err) {
+          err.printStackTrace();
+        }
         break;
       case 8: case 127:
         board.removeSelected();

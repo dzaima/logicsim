@@ -8,10 +8,12 @@ import java.util.Scanner;
 import static logicsim.wiretypes.BasicWire.*;
 
 public class LampGate extends Gate {
+  private final String name;
   private boolean b;
   
-  public LampGate(float x, float y) {
+  public LampGate(float x, float y, String name) {
     super(ONE_WIRE, NOTHING, x, y);
+    this.name = name;
     ips = new PVector[]{new PVector(-20, 0)};
     ops = new PVector[0];
   }
@@ -21,7 +23,8 @@ public class LampGate extends Gate {
       @Override
       protected Gate createFrom(Scanner s) {
         String[] a = s.nextLine().split(" ");
-        return new LampGate(Float.parseFloat(a[0]), Float.parseFloat(a[1]));
+        String name = s.nextLine();
+        return new LampGate(Float.parseFloat(a[0]), Float.parseFloat(a[1]), name);
       }
     };
   }
@@ -51,6 +54,8 @@ public class LampGate extends Gate {
   
   @Override
   public Gate cloneCircuit(float x, float y) {
-    return new LampGate(x, y);
+    return new LampGate(x, y, name);
   }
+  
+  
 }
