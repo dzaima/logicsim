@@ -85,7 +85,7 @@ public class Main extends PApplet {
     for (Gate g : todo) {
       g.process();
     }
-    if (todo.size() != 0) println(todo.size());
+//    if (todo.size() != 0) println(todo.size());
   }
   static boolean shiftPressed;
   private int mct = 0;
@@ -118,7 +118,9 @@ public class Main extends PApplet {
         in.unMiddleClick(mouseX, mouseY);
       }
     }
+    long ms = System.nanoTime();
     step();
+    long time = System.nanoTime() - ms;
     background(BG);
     
     board.draw(g, mouseX, mouseY);
@@ -132,7 +134,7 @@ public class Main extends PApplet {
     selection.draw(g, mouseX, mouseY);
     board.drawHeld(g);
     
-    if (frameCount%60==0) System.out.println(frameRate);
+    if (frameCount%60==0) System.out.println(frameRate+" "+next.size()+" "+time);
     pmousePressed = mousePressed;
   }
   
@@ -165,7 +167,7 @@ public class Main extends PApplet {
         err.printStackTrace();
       }
     }
-    System.out.println(+key+" "+ keyCode);
+//    System.out.println((+key)+" "+ keyCode);
     switch (key) {
       case '1':
         board.add(new TrueGate(board.fmX(mouseX), board.fmY(mouseY)));

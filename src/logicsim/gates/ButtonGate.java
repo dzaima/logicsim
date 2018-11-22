@@ -17,12 +17,9 @@ public class ButtonGate extends Gate {
   }
   
   public static GateHandler handler() {
-    return new GateHandler() {
-      @Override
-      protected Gate createFrom(Scanner s) {
-        String[] a = s.nextLine().split(" ");
-        return new ButtonGate(Float.parseFloat(a[0]), Float.parseFloat(a[1]));
-      }
+    return s -> {
+      String[] a = s.nextLine().split(" ");
+      return new ButtonGate(Float.parseFloat(a[0]), Float.parseFloat(a[1]));
     };
   }
   

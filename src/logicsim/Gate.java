@@ -3,14 +3,16 @@ package logicsim;
 import org.jetbrains.annotations.*;
 import processing.core.*;
 
-import java.util.Scanner;
+import java.util.*;
 
 public abstract class Gate {
   public boolean selected = false;
-  protected Connection[] is, os;
+  public Connection[] is;
+  protected Connection[] os;
   protected final WireType[] its;
   protected final WireType[] ots;
   protected float x, y;
+  public String name;
   
   protected Gate(WireType[] its, WireType[] ots, float x, float y) {
     this.x = x;
@@ -77,8 +79,8 @@ public abstract class Gate {
     }
     
     g.fill(Main.OUTPUT_COLOR);
-    for (PVector ip : ops) {
-      g.ellipse(x + ip.x, y + ip.y, 7, 7);
+    for (PVector op : ops) {
+      g.ellipse(x + op.x, y + op.y, 7, 7);
     }
   }
   
@@ -130,12 +132,20 @@ public abstract class Gate {
     // do nothing
   }
   
-  String def(float xoff, float yoff) {
+  public String def(float xoff, float yoff) {
     String[] ss = getClass().getName().split("\\.");
     return ss[ss.length-1] + "\n"+(x-xoff)+" "+(y-yoff);
   }
   
-  protected abstract static class GateHandler {
-    protected abstract Gate createFrom(Scanner s) throws LoadException;
+  public void forwardConnection(Connection c) {
+    throw new Error(this+" wasn't made to receive connections");
+  }
+  
+  public Connection giveConnection() {
+    throw new Error(this+" wasn't made to send connections");
+  }
+  
+  protected interface GateHandler {
+    Gate createFrom(Scanner s) throws LoadException;
   }
 }

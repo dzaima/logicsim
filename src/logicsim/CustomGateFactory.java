@@ -6,12 +6,12 @@ import logicsim.wiretypes.BasicWire;
 import java.util.*;
 
 public class CustomGateFactory {
-  Circuit c;
-  WireType[] its;
-  WireType[] ots;
-  String name;
-  private final String[] ins;
-  private final String[] ons;
+  public Circuit c;
+  private WireType[] its;
+  private WireType[] ots;
+  public String name;
+  public final String[] ins;
+  public final String[] ons;
   private ArrayList<CustomGate> instances;
   
   public CustomGateFactory(Circuit c, String name, String[] ins, String[] ons) {
@@ -55,7 +55,7 @@ public class CustomGateFactory {
   }
   
   public CustomGate create(float x, float y) {
-    CustomGate cg = new CustomGate(its.clone(), ots.clone(), x, y, c.copy(), this);
+    CustomGate cg = new CustomGate(its.clone(), ots.clone(), x, y, this);
     instances.add(cg);
     return cg;
   }

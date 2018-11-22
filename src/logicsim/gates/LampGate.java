@@ -3,12 +3,9 @@ package logicsim.gates;
 import logicsim.*;
 import processing.core.*;
 
-import java.util.Scanner;
-
 import static logicsim.wiretypes.BasicWire.*;
 
 public class LampGate extends Gate {
-  private final String name;
   private boolean b;
   
   public LampGate(float x, float y, String name) {
@@ -19,13 +16,10 @@ public class LampGate extends Gate {
   }
   
   public static GateHandler handler() {
-    return new GateHandler() {
-      @Override
-      protected Gate createFrom(Scanner s) {
-        String[] a = s.nextLine().split(" ");
-        String name = s.nextLine();
-        return new LampGate(Float.parseFloat(a[0]), Float.parseFloat(a[1]), name);
-      }
+    return s -> {
+      String[] a = s.nextLine().split(" ");
+      String name = s.nextLine();
+      return new LampGate(Float.parseFloat(a[0]), Float.parseFloat(a[1]), name);
     };
   }
   
@@ -57,5 +51,12 @@ public class LampGate extends Gate {
     return new LampGate(x, y, name);
   }
   
+  public String def(float xoff, float yoff) {
+    return "LampGate\n" + (x-xoff) + " " + (y-yoff) + "\n" + name;
+  }
   
+  @Override
+  public Connection giveConnection() {
+   return is[0];
+  }
 }

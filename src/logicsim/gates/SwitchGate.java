@@ -3,12 +3,9 @@ package logicsim.gates;
 import logicsim.*;
 import processing.core.*;
 
-import java.util.Scanner;
-
 import static logicsim.wiretypes.BasicWire.*;
 
 public class SwitchGate extends Gate {
-  private final String name;
   
   public SwitchGate(float x, float y, String name) {
     super(NOTHING, ONE_WIRE, x, y);
@@ -18,13 +15,10 @@ public class SwitchGate extends Gate {
   }
   
   public static GateHandler handler() {
-    return new GateHandler() {
-      @Override
-      protected Gate createFrom(Scanner s) {
-        String[] a = s.nextLine().split(" ");
-        String name = s.nextLine();
-        return new SwitchGate(Float.parseFloat(a[0]), Float.parseFloat(a[1]), name);
-      }
+    return s -> {
+      String[] a = s.nextLine().split(" ");
+      String name = s.nextLine();
+      return new SwitchGate(Float.parseFloat(a[0]), Float.parseFloat(a[1]), name);
     };
   }
   
@@ -90,5 +84,18 @@ public class SwitchGate extends Gate {
   @Override
   public boolean in(float mx, float my) {
     return Math.abs(mx-x) < 25 && Math.abs(my-y) < 32;
+  }
+  
+  public String def(float xoff, float yoff) {
+    return "SwitchGate\n" + (x-xoff) + " " + (y-yoff) + "\n" + name;
+  }
+  
+  @Override
+  public void forwardConnection(Connection c) {
+    boolean n = ((BasicConnection) c).b;
+    if (n != on) {
+      on = n;
+      warn();
+    }
   }
 }

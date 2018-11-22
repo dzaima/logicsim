@@ -6,7 +6,7 @@ import processing.core.PGraphics;
 public abstract class Connection {
   protected final Gate in;
   protected final int ip;
-  protected Gate[] out;
+  public Gate[] out;
   
   protected Connection(Gate in, int ip) {
     this.in = in;
@@ -14,7 +14,7 @@ public abstract class Connection {
     this.out = new Gate[0];
   }
   
-  void addWarnable(@NotNull Gate g) {
+  public void addWarnable(@NotNull Gate g) {
 //    System.out.println(this+" ADD "+g);
     if (contains(g)) return;
     Gate[] nout = new Gate[out.length+1];

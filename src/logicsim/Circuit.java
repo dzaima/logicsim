@@ -6,7 +6,7 @@ import processing.core.*;
 import java.util.*;
 
 public class Circuit {
-  ArrayList<Gate> gates;
+  public ArrayList<Gate> gates;
   Circuit() {
     gates = new ArrayList<>();
   }
@@ -169,7 +169,9 @@ public class Circuit {
       for (int i = 0; i < gam; i++) {
         String name = sc.nextLine();
         if (!Main.handlers.containsKey(name)) throw new LoadException("No gate "+name+" found in the library");
+//        System.out.println(name);
         Gate g = Main.handlers.get(name).createFrom(sc);
+//        System.out.println("done");
         m.put(i, g);
         g.x+= x;
         g.y+= y;
@@ -187,6 +189,7 @@ public class Circuit {
       }
       return m;
     } catch (NumberFormatException e) {
+      e.printStackTrace();
       throw new LoadException("badly formatted input");
     }
   }
