@@ -7,8 +7,8 @@ import java.util.Scanner;
 
 import static logicsim.wiretypes.BasicWire.*;
 
-public class NandGate extends Gate {
-  public NandGate(float x, float y) {
+public class AndGate extends Gate {
+  public AndGate(float x, float y) {
     super(TWO_WIRES, ONE_WIRE, x, y);
     ips = new PVector[]{new PVector(-35, 10), new PVector(-35, -10)};
     ops = new PVector[]{new PVector(40, 0)};
@@ -19,7 +19,7 @@ public class NandGate extends Gate {
       @Override
       protected Gate createFrom(Scanner s) {
         String[] a = s.nextLine().split(" ");
-        return new NandGate(Float.parseFloat(a[0]), Float.parseFloat(a[1]));
+        return new AndGate(Float.parseFloat(a[0]), Float.parseFloat(a[1]));
       }
     };
   }
@@ -32,7 +32,7 @@ public class NandGate extends Gate {
     BasicConnection oc = (BasicConnection) os[0];
     boolean a = (ca).b;
     boolean b = cb.b;
-    oc.set(!(a & b));
+    oc.set(a & b);
   }
   
   @Override
@@ -43,14 +43,14 @@ public class NandGate extends Gate {
       g.noStroke();
       g.fill(Main.SELECTED);
       g.beginShape();
-      g.vertex(x-0, y+25);
-      g.vertex(x-25, y+25);
-      g.vertex(x-25, y-25);
-      g.vertex(x-0, y-25);
-      for(int i = 0; i < 31; i++) {
-        double r = i/30d * Math.PI;
-        g.vertex(x + (float) Math.sin(r) * 25, y + (float) Math.cos(r) * 25);
-      }
+        g.vertex(x-0, y+25);
+        g.vertex(x-25, y+25);
+        g.vertex(x-25, y-25);
+        g.vertex(x-0, y-25);
+        for(int i = 0; i < 31; i++) {
+          double r = i/30d * Math.PI;
+          g.vertex(x + (float) Math.sin(r) * 25, y + (float) Math.cos(r) * 25);
+        }
       g.endShape(PConstants.CLOSE);
     }
     
@@ -60,7 +60,6 @@ public class NandGate extends Gate {
     g.line(x+20 , y, x+40, y); // output line
     g.line(x-20, y+10, x-35, y+10); // input lines
     g.line(x-20, y-10, x-35, y-10); // input lines
-    g.ellipse(x+24, y, 4, 4); // invert
     
     g.ellipse(x, y, 20, 20); // elliptical body
     
@@ -82,6 +81,6 @@ public class NandGate extends Gate {
   
   @Override
   public Gate cloneCircuit(float x, float y) {
-    return new NandGate(x, y);
+    return new AndGate(x, y);
   }
 }

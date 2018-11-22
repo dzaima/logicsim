@@ -1,11 +1,13 @@
 package logicsim;
 
+import org.jetbrains.annotations.Contract;
 import processing.core.*;
 
+import java.text.CharacterIterator;
 import java.util.*;
 
-class Circuit {
-  private ArrayList<Gate> gates;
+public class Circuit {
+  ArrayList<Gate> gates;
   Circuit() {
     gates = new ArrayList<>();
   }
@@ -14,9 +16,9 @@ class Circuit {
     Collections.addAll(this.gates, gates);
   }
   
-  private int pmx, pmy;
-  private float offX, offY;
-  private float scale = 1; // 2 = 1/4th seen from before
+  int pmx, pmy;
+  float offX, offY;
+  float scale = 1; // 2 = 1/4th seen from before
   
   void mouseWheel(int i, int mx, int my) {
     double sc = i==1? .8 : 1/.8;
@@ -27,86 +29,245 @@ class Circuit {
     offY -= (my * scaleChange);
   }
   
-  void draw(PGraphics g, int mx, int my) {for(Gate cg:gates) cg.in(fmx(mx),fmy(my));
-    if (mpressed && held == null) {
+  void drawHeld(PGraphics g) {
+    g.pushMatrix();
+      g.translate(-offX * scale, -offY * scale);
+      g.scale(scale);
+      if (held != null) held.draw(g);
+    g.popMatrix();
+  }
+  
+  void draw(PGraphics g, int mx, int my) {
+    g.pushMatrix();
+    if (mmpressed) {
       offX += (pmx-mx) / scale;
       offY += (pmy-my) / scale;
     }
     g.translate(-offX * scale, -offY * scale);
     g.scale(scale);
-    for (Gate gate : gates) {
-      gate.draw(g);
-    }
     if (held != null) {
       if (t == HoldType.gate) {
-        held.x+= (mx-pmx) / scale;
-        held.y+= (my-pmy) / scale;
+        float dx = (mx-pmx) / scale;
+        float dy = (my-pmy) / scale;
+        if (!held.selected) {
+          if(!selected.isEmpty()) unselectAll();
+          held.x+= dx;
+          held.y+= dy;
+        } else {
+          for (Gate cg : selected) {
+            cg.x+= dx;
+            cg.y+= dy;
+          }
+        }
       }
       if (t == HoldType.out) {
         PVector p = held.ops[heldPos];
-        g.stroke(Main.OFF_COLOR);
-        g.line(fmx(mx), fmy(my), p.x+held.x, p.y+held.y);
+        g.stroke(Main.CIRCUIT_BORDERS);
+        g.line(fmX(mx), fmY(my), p.x+held.x, p.y+held.y);
       }
       if (t == HoldType.in) {
         PVector p = held.ips[heldPos];
-        g.stroke(Main.OFF_COLOR);
-        g.line(fmx(mx), fmy(my), p.x+held.x, p.y+held.y);
+        g.stroke(Main.CIRCUIT_BORDERS);
+        g.line(fmX(mx), fmY(my), p.x+held.x, p.y+held.y);
       }
+    }
+    for (Gate gate : gates) gate.drawConnections(g);
+    for (Gate gate : gates) gate.draw(g);
+    if (t == HoldType.select) {
+      g.noStroke();
+      g.fill(Main.SELECTED);
+      g.rectMode(g.CORNERS);
+      g.rect(selectX, selectY, fmX(mx), fmY(my));
     }
     pmx = mx;
     pmy = my;
+    g.popMatrix();
   }
-  private boolean mpressed = false;
-  private Gate held;
   
-  float fmx(float mX) {
+  void unselectAll() {
+    while(!selected.isEmpty()) unselect(selected.get(0));
+  }
+  
+  boolean lmpressed = false;
+  boolean mmpressed;
+  Gate held;
+  
+  float fmX(float mX) {
     return mX/scale + offX;
   }
-  float fmy(float mY) {
+  float fmY(float mY) {
     return mY/scale + offY;
   }
   
-  void rightClick(int imX, int imY) {
-    float mX = fmx(imX);
-    float mY = fmy(imY);
+  private Gate clicked;
+  void rightPressed(int imX, int imY) {
+    float mX = fmX(imX);
+    float mY = fmY(imY);
     for (Gate g : gates) {
-      if (g.in(mX, mY)) g.click();
+      if (g.in(mX, mY)) {
+        clicked = g;
+        g.click();
+        break;
+      }
+    }
+  }
+  void rightReleased() {
+    if (clicked != null) {
+      clicked.unclick();
+      clicked = null;
     }
   }
   
-  enum HoldType {
-    gate, in, out
+  void removeSelected() {
+    while(!selected.isEmpty()) {
+      Gate g = selected.get(0);
+      unselect(g);
+      g.delete();
+      gates.remove(g);
+    }
   }
-  private HoldType t;
-  int heldPos;
-  void clicked(int imX, int imY) {
-    float mX = fmx(imX);
-    float mY = fmy(imY);
-    mpressed = true;
-    for(Gate g : gates) {
+  
+  ArrayList<Gate> selected = new ArrayList<>();
+  void simpleClick(float mX, float mY) {
+    mX = fmX(mX);
+    mY = fmY(mY);
+    for (Gate g : gates) {
+      if (g.in(mX, mY)) {
+        if (selected.contains(g)) unselect(g);
+        else {
+          if (!Main.shiftPressed) unselectAll();
+          select(g);
+        }
+        break;
+      }
+    }
+  }
+  
+  private void select(Gate g) {
+    selected.add(g);
+    g.selected = true;
+  }
+  private void unselect(Gate g) {
+    selected.remove(g);
+    g.selected = false;
+  }
+  
+  
+  void middleClick(int mX, int mY) {
+    mmpressed = true;
+  }
+  
+  void unMiddleClick(int mX, int mY) {
+    mmpressed = false;
+  }
+  
+  
+  void importStr(Scanner sc, float x, float y) {
+    try {
+      unselectAll();
+      HashMap<Integer, Gate> m = new HashMap<>();
+      int gam = Integer.parseInt(sc.nextLine());
+      for (int i = 0; i < gam; i++) {
+        String name = sc.nextLine();
+        Gate g = Main.handlers.get(name).createFrom(sc);
+        m.put(i, g);
+        g.x+= x;
+        g.y+= y;
+        gates.add(g);
+        select(g);
+      }
+      int cam = Integer.parseInt(sc.nextLine());
+      for (int i = 0; i < cam; i++) {
+        String[] ln = sc.nextLine().split(" ");
+        Gate og = m.get(Integer.parseInt(ln[0])); // outputting gate
+        int oi = Integer.parseInt(ln[1]);
+        Gate ig = m.get(Integer.parseInt(ln[2]));
+        int ii = Integer.parseInt(ln[3]);
+        ig.setInput(ii, og.os[oi]);
+      }
+    } catch (NumberFormatException e) {
+      e.printStackTrace();
+    }
+  }
+  
+  @Contract(pure = true)
+  static String exportStr(ArrayList<Gate> gs) {
+    HashMap<Gate, Integer> m = new HashMap<>();
+    StringBuilder o = new StringBuilder();
+    o.append(gs.size()).append("\n");
+    float lx = Float.POSITIVE_INFINITY, ly = Float.POSITIVE_INFINITY, bx = Float.NEGATIVE_INFINITY, by = Float.NEGATIVE_INFINITY;
+    for (Gate g : gs) {
+      if (g.x < lx) lx = g.x;
+      if (g.y < ly) ly = g.y;
+      if (g.x > bx) bx = g.x;
+      if (g.y > by) by = g.y;
+    }
+    for (int i = 0; i < gs.size(); i++) {
+      Gate g = gs.get(i);
+      o.append(g.def((lx+bx) / 2, (ly+by)/2)).append("\n");
+      m.put(g, i);
+    }
+    StringBuilder cs = new StringBuilder();
+    int ctr = 0;
+    for (Gate g : gs) {
+      Connection[] is = g.is;
+      for (int i = 0; i < is.length; i++) {
+        Connection c = is[i];
+        if (m.containsKey(c.in)) {
+          cs.append(m.get(c.in)).append(" ").append(c.ip).append(" ").append(m.get(g)).append(" ").append(i).append("\n");
+          ctr++;
+        }
+      }
+    }
+    o.append(ctr).append("\n");
+    o.append(cs);
+    return o.toString();
+  }
+  
+  public Circuit copy() {
+    Circuit n = new Circuit();
+    n.importStr(new Scanner(exportStr(gates)), 0, 0);
+    return n;
+  }
+  
+  enum HoldType {
+    gate, in, out, select
+  }
+  private float selectX, selectY;
+  HoldType t;
+  private int heldPos;
+  void leftPressed(int imX, int imY) {
+    float mX = fmX(imX);
+    float mY = fmY(imY);
+    lmpressed = true;
+    for (Gate g : gates) {
       if (g.inIn(mX, mY) != -1) {
         held = g;
         heldPos = g.inIn(mX, mY);
         t = HoldType.in;
-        break;
+        return;
       }
       if (g.outIn(mX, mY) != -1) {
         held = g;
         heldPos = g.outIn(mX, mY);
         t = HoldType.out;
-        break;
+        return;
       }
       if (g.in(mX, mY)) {
         held = g;
         t = HoldType.gate;
-        break;
+        return;
       }
     }
+    unselectAll();
+    selectX = mX;
+    selectY = mY;
+    t = HoldType.select;
   }
   
-  void released(int imX, int imY) {
-    float mX = fmx(imX);
-    float mY = fmy(imY);
+  void leftReleased(int imX, int imY) {
+    float mX = fmX(imX);
+    float mY = fmY(imY);
     if (t == HoldType.out) {
       WireType type = held.ots[heldPos];
       for (Gate g : gates) {
@@ -143,7 +304,24 @@ class Circuit {
         held.warn();
       }
     }
-    mpressed = false;
+    if (t == HoldType.gate) {
+      if (imX < 200) {
+        held.delete();
+        gates.remove(held);
+      }
+    }
+    if (t == HoldType.select) {
+      float lx = Math.min(selectX, mX);
+      float bx = Math.max(selectX, mX);
+      float ly = Math.min(selectY, mY);
+      float by = Math.max(selectY, mY);
+      for (Gate g : gates) {
+        if (g.x>lx && g.x<bx  &&  g.y>ly && g.y<by) {
+          select(g);
+        }
+      }
+    }
+    lmpressed = false;
     held = null;
     t = null;
     heldPos = -1;

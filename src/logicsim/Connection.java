@@ -3,8 +3,6 @@ package logicsim;
 import org.jetbrains.annotations.*;
 import processing.core.PGraphics;
 
-import java.util.Collections;
-
 public abstract class Connection {
   protected final Gate in;
   protected final int ip;
@@ -48,8 +46,10 @@ public abstract class Connection {
   
   @Contract(pure = true)
   public void draw(PGraphics g, float x, float y, float x2, float y2) {
-    g.strokeWeight(1);
+    g.strokeWeight(5);
     g.stroke(Main.OFF_COLOR);
-    g.line(x, y, x2, y2);
+    float f = 30;
+    g.bezier(x, y, x+f, y, x2-f, y2, x2, y2);
+//    g.line(x, y, x2, y2);
   }
 }
