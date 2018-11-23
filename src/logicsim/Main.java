@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.*;
 public class Main extends PApplet {
   public static final int SELECTED = 0x606666ff;
-  public static final int TEXTCOLOR = 0xff000000;
+  public static final int TEXT_COLOR = 0xff000000;
   public static final int MENUBG = 100;
   public static final int BG = 0xffC8C8C8;
   private static final int SELBG = 180;
@@ -38,6 +38,8 @@ public class Main extends PApplet {
     handlers.put("NandGate", NandGate.handler());
     handlers.put("AndGate", AndGate.handler());
     handlers.put("ButtonGate", ButtonGate.handler());
+    handlers.put("LatchGate", LatchGate.handler());
+    handlers.put("NumGate", NumGate.handler());
     handlers.put("CustomGate", CustomGate.handler());
     gateLibrary = new HashMap<>();
     String[] appletArgs = new String[]{"logicsim.Main"};
@@ -61,6 +63,8 @@ public class Main extends PApplet {
       new TrueGate(100, 50),
       new NandGate(100, 100),
       new AndGate(100, 150),
+      new LatchGate(100, 200),
+      new NumGate(100, 350),
       new SwitchGate(100, 420, ""),
       new LampGate(100, 490, ""),
       new ButtonGate(100, 550)
@@ -122,9 +126,12 @@ public class Main extends PApplet {
         in.unMiddleClick(mouseX, mouseY);
       }
     }
-    long ms = System.nanoTime();
-//    while (System.nanoTime()-ms < 2000000l && next.size() > 0)
+    long ns = System.nanoTime();
+    int d = 0;
+    do {
       step();
+      d++;
+    } while (System.nanoTime() - ns < 200000L && next.size() > 0); // .2ms
     background(BG);
     
     board.draw(g, mouseX, mouseY);
@@ -138,7 +145,7 @@ public class Main extends PApplet {
     selection.draw(g, mouseX, mouseY);
     board.drawHeld(g);
     
-    if (frameCount%60==0) System.out.println(frameRate+" "+next.size());
+    if (frameCount%60==0) System.out.println(frameRate+" "+next.size()+" "+d);
     pmousePressed = mousePressed;
 //    System.out.println(ctr);
     ctr = 0;
@@ -185,18 +192,18 @@ public class Main extends PApplet {
       }
     }
     switch (key) {
-      case '1':
-        board.add(new TrueGate(board.fmX(mouseX), board.fmY(mouseY)));
-        break;
-      case '2':
-        board.add(new NandGate(board.fmX(mouseX), board.fmY(mouseY)));
-        break;
-      case '3':
-        board.add(new SwitchGate(board.fmX(mouseX), board.fmY(mouseY), ""));
-        break;
-      case '4':
-        board.add(new LampGate(board.fmX(mouseX), board.fmY(mouseY), ""));
-        break;
+//      case '1':
+//        board.add(new TrueGate(board.fmX(mouseX), board.fmY(mouseY)));
+//        break;
+//      case '2':
+//        board.add(new NandGate(board.fmX(mouseX), board.fmY(mouseY)));
+//        break;
+//      case '3':
+//        board.add(new SwitchGate(board.fmX(mouseX), board.fmY(mouseY), ""));
+//        break;
+//      case '4':
+//        board.add(new LampGate(board.fmX(mouseX), board.fmY(mouseY), ""));
+//        break;
       case 'i': // create IC
         String s = Circuit.exportStr(board.selected);
         Circuit ic = new Circuit();
@@ -205,6 +212,9 @@ public class Main extends PApplet {
         } catch (NoSuchElementException | LoadException err) {
           err.printStackTrace();
         }
+        break;
+      case 'c':
+        next = new HashSet<>();
         break;
       case 127:
         board.removeSelected();

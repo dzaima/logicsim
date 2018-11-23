@@ -7,9 +7,10 @@ import java.util.Arrays;
 
 public class BasicWire extends WireType {
   public static WireType WIRE = new BasicWire();
-  public static WireType[] TWO_WIRES = new WireType[]{WIRE, WIRE};
-  public static WireType[] ONE_WIRE = new WireType[]{WIRE};
   public static WireType[] NOTHING = new WireType[]{};
+  public static WireType[] ONE_WIRE = new WireType[]{WIRE};
+  public static WireType[] TWO_WIRES = new WireType[]{WIRE, WIRE};
+  public static final WireType[] FOUR_WIRES = new WireType[]{WIRE, WIRE, WIRE, WIRE};
   private static Connection NO_CONNECTION = new BasicConnection(null, -1) {
     @Override
     public String toString() {

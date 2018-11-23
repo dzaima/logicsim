@@ -5,7 +5,6 @@ import processing.awt.PGraphicsJava2D;
 import processing.core.*;
 
 import java.awt.*;
-import java.util.Arrays;
 
 import static logicsim.wiretypes.BasicWire.BasicConnection;
 
@@ -144,7 +143,7 @@ public class CustomGate extends Gate {
     
     g.textSize(10);
     g.textAlign(g.LEFT, g.CENTER);
-    int textcol = Main.TEXTCOLOR & 0xffffff | mask;
+    int textcol = Main.TEXT_COLOR & 0xffffff | mask;
     if (textcol < 0 || textcol > 255) {
       for (int i = 0; i < its.length; i++) {
         float cy = y + (i - its.length / 2f + .5f) * 20;
@@ -163,6 +162,12 @@ public class CustomGate extends Gate {
         g.text(f.ons[i], x + width - 2, cy - 1);
       }
     }
+    g.pushMatrix();
+      g.translate(x, y);
+      g.rotate(PConstants.HALF_PI);
+      g.textAlign(PConstants.CENTER, PConstants.CENTER);
+      g.text(f.name, 0, 0);
+    g.popMatrix();
     drawIO(g);
   }
   
