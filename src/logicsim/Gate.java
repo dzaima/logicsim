@@ -97,14 +97,14 @@ public abstract class Gate {
   int inIn(float mx, float my) {
     for (int i = 0; i < ips.length; i++) {
       PVector p = ips[i];
-      if ((p.x+x-mx)*(p.x+x-mx) + (p.y+y-my)*(p.y+y-my) <= 8*8) return i;
+      if ((p.x+x-mx)*(p.x+x-mx) + (p.y+y-my)*(p.y+y-my) <= 16*16) return i;
     }
     return -1;
   }
   int outIn(float mx, float my) {
     for (int i = 0; i < ops.length; i++) {
       PVector p = ops[i];
-      if ((p.x+x-mx)*(p.x+x-mx) + (p.y+y-my)*(p.y+y-my) <= 8*8) return i;
+      if ((p.x+x-mx)*(p.x+x-mx) + (p.y+y-my)*(p.y+y-my) <= 16*16) return i;
     }
     return -1;
   }

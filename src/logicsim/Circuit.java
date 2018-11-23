@@ -59,6 +59,16 @@ public class Circuit {
           }
         }
       }
+    }
+    for (Gate gate : gates) gate.drawConnections(g);
+    for (Gate gate : gates) gate.draw(g);
+    if (t == HoldType.select) {
+      g.noStroke();
+      g.fill(Main.SELECTED);
+      g.rectMode(g.CORNERS);
+      g.rect(selectX, selectY, fmX(mx), fmY(my));
+    }
+    if (held != null) {
       if (t == HoldType.out) {
         PVector p = held.ops[heldPos];
         g.stroke(Main.CIRCUIT_BORDERS);
@@ -69,14 +79,6 @@ public class Circuit {
         g.stroke(Main.CIRCUIT_BORDERS);
         g.line(fmX(mx), fmY(my), p.x+held.x, p.y+held.y);
       }
-    }
-    for (Gate gate : gates) gate.drawConnections(g);
-    for (Gate gate : gates) gate.draw(g);
-    if (t == HoldType.select) {
-      g.noStroke();
-      g.fill(Main.SELECTED);
-      g.rectMode(g.CORNERS);
-      g.rect(selectX, selectY, fmX(mx), fmY(my));
     }
     pmx = mx;
     pmy = my;
@@ -112,7 +114,8 @@ public class Circuit {
   void rightPressed(int imX, int imY) {
     float mX = fmX(imX);
     float mY = fmY(imY);
-    for (Gate g : gates) {
+    for (int i = gates.size()-1; i>=0; i--) {
+      Gate g = gates.get(i);
       if (g.in(mX, mY)) {
         clicked = g;
         g.click();
@@ -140,7 +143,8 @@ public class Circuit {
   void simpleClick(float mX, float mY) {
     mX = fmX(mX);
     mY = fmY(mY);
-    for (Gate g : gates) {
+    for (int i = gates.size()-1; i>=0; i--) {
+      Gate g = gates.get(i);
       if (g.in(mX, mY)) {
         if (selected.contains(g)) unselect(g);
         else {
@@ -258,7 +262,8 @@ public class Circuit {
     float mX = fmX(imX);
     float mY = fmY(imY);
     lmpressed = true;
-    for (Gate g : gates) {
+    for (int i = gates.size()-1; i>=0; i--) {
+      Gate g = gates.get(i);
       if (g.inIn(mX, mY) != -1) {
         held = g;
         heldPos = g.inIn(mX, mY);
@@ -288,13 +293,14 @@ public class Circuit {
     float mY = fmY(imY);
     if (t == HoldType.out) {
       WireType type = held.ots[heldPos];
-      for (Gate g : gates) {
+      for (int i = gates.size()-1; i>=0; i--) {
+        Gate g = gates.get(i);
         if (g.inIn(mX, mY) != -1) {
           int p = g.inIn(mX, mY);
           if (type.equals(g.its[p]))
             g.setInput(p, held.os[heldPos]);
-            g.warn();
-            held.warn();
+          g.warn();
+          held.warn();
           break;
         }
       }
@@ -302,7 +308,8 @@ public class Circuit {
     if (t == HoldType.in) {
       WireType type = held.its[heldPos];
       boolean found = false;
-      for (Gate g : gates) {
+      for (int i = gates.size()-1; i>=0; i--) {
+        Gate g = gates.get(i);
         if (g.outIn(mX, mY) != -1) {
           int p = g.outIn(mX, mY);
           if (type.equals(g.ots[p]))
@@ -333,7 +340,8 @@ public class Circuit {
       float bx = Math.max(selectX, mX);
       float ly = Math.min(selectY, mY);
       float by = Math.max(selectY, mY);
-      for (Gate g : gates) {
+      for (int i = gates.size()-1; i>=0; i--) {
+        Gate g = gates.get(i);
         if (g.x>lx && g.x<bx  &&  g.y>ly && g.y<by) {
           select(g);
         }

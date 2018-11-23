@@ -45,4 +45,9 @@ class SelectionCircuit extends Circuit {
   void rightReleased() {
   
   }
+  
+  @Override
+  void leftReleased(int imX, int imY) {
+  
+  }
 }

@@ -9,10 +9,10 @@ public class ROCircuit extends Circuit {
     lx = ly = Float.POSITIVE_INFINITY;
     bx = by = Float.NEGATIVE_INFINITY;
     for (Gate g : gates) {
-      if (g.x < lx) lx = g.x;
-      if (g.x > bx) bx = g.x;
-      if (g.y < ly) ly = g.y;
-      if (g.y > by) by = g.y;
+      if (g.x < lx) lx = g.x-20;
+      if (g.x > bx) bx = g.x+20;
+      if (g.y < ly) ly = g.y-20;
+      if (g.y > by) by = g.y+20;
     }
   }
   
