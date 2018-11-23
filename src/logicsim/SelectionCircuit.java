@@ -5,7 +5,7 @@ import processing.core.*;
 class SelectionCircuit extends Circuit {
   
   @Override
-  void draw(PGraphics g, int mx, int my) {
+  public void draw(PGraphics g, int mx, int my) {
     g.pushMatrix();
     if (mmpressed) {
       offX += (pmx-mx) / scale;

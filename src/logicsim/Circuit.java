@@ -36,7 +36,7 @@ public class Circuit {
     g.popMatrix();
   }
   
-  void draw(PGraphics g, int mx, int my) {
+  public void draw(PGraphics g, int mx, int my) {
     g.pushMatrix();
     if (mmpressed) {
       offX += (pmx-mx) / scale;
@@ -81,6 +81,16 @@ public class Circuit {
     pmx = mx;
     pmy = my;
     g.popMatrix();
+    if (selected.size() == 1) {
+      g.fill(Main.MENUBG);
+      g.noStroke();
+      g.rectMode(g.CORNER);
+      g.rect(g.width-200, g.height-100, 200, 100);
+      g.textAlign(g.LEFT, g.CENTER);
+      g.fill(200);
+      Gate gt = selected.get(0);
+      if (gt.name != null) g.text(gt.name, g.width-190, g.height-50);
+    }
   }
   
   void unselectAll() {
@@ -161,7 +171,7 @@ public class Circuit {
   }
   
   
-  HashMap<Integer, Gate> importStr(Scanner sc, float x, float y) throws LoadException {
+  void importStr(Scanner sc, float x, float y) throws LoadException {
     try {
       unselectAll();
       HashMap<Integer, Gate> m = new HashMap<>();
@@ -187,7 +197,6 @@ public class Circuit {
         int ii = Integer.parseInt(ln[3]);
         ig.setInput(ii, og.os[oi]);
       }
-      return m;
     } catch (NumberFormatException e) {
       e.printStackTrace();
       throw new LoadException("badly formatted input");

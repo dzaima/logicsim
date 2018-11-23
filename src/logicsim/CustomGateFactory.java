@@ -6,7 +6,7 @@ import logicsim.wiretypes.BasicWire;
 import java.util.*;
 
 public class CustomGateFactory {
-  public Circuit c;
+  public ROCircuit c;
   private WireType[] its;
   private WireType[] ots;
   public String name;
@@ -14,7 +14,7 @@ public class CustomGateFactory {
   public final String[] ons;
   private ArrayList<CustomGate> instances;
   
-  public CustomGateFactory(Circuit c, String name, String[] ins, String[] ons) {
+  public CustomGateFactory(ROCircuit c, String name, String[] ins, String[] ons) {
     this.c = c;
     this.name = name;
     its = new WireType[ins.length];
@@ -35,7 +35,7 @@ public class CustomGateFactory {
       int icam = Integer.parseInt(sc.nextLine());
       for (int i = 0; i < icam; i++) {
         String name = sc.nextLine();
-        Circuit c = new Circuit();
+        ROCircuit c = new ROCircuit();
         c.importStr(sc, 0, 0);
         int iam = Integer.parseInt(sc.nextLine());
         ArrayList<String> is = new ArrayList<>(iam);
@@ -50,7 +50,11 @@ public class CustomGateFactory {
         Main.board.add(f.create(0, 0));
       }
     } catch (NumberFormatException e) {
+      e.printStackTrace();
       throw new LoadException("bad input");
+    } catch (NoSuchElementException e) {
+      e.printStackTrace();
+      throw new LoadException("input ended early");
     }
   }
   

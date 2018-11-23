@@ -8,10 +8,11 @@ import java.awt.*;
 import java.awt.datatransfer.*;
 import java.io.IOException;
 import java.util.*;
-@SuppressWarnings("ALL")
 public class Main extends PApplet {
   public static final int SELECTED = 0x606666ff;
-  private static final int BG = 200;
+  public static final int TEXTCOLOR = 0xff000000;
+  public static final int MENUBG = 100;
+  public static final int BG = 0xffC8C8C8;
   private static final int SELBG = 180;
   public static int CIRCUIT_COLOR = 0xffffffff;
   public static int CIRCUIT_BORDERS = 0xff000000;
@@ -23,6 +24,8 @@ public class Main extends PApplet {
   public static int ON_LAMP = 0xff2090e0;
   public static int OFF_LAMP = 0xffffffff;
   public static Set<Gate> next;
+  public static int ctr;
+  public static Main instance;
   static Circuit board;
   private SelectionCircuit selection;
   public static HashMap<String, CustomGateFactory> gateLibrary;
@@ -46,6 +49,7 @@ public class Main extends PApplet {
   }
   @Override
   public void settings() {
+    instance = this;
     size(900, 600);
 //    smooth(0);
     
@@ -119,8 +123,8 @@ public class Main extends PApplet {
       }
     }
     long ms = System.nanoTime();
-    step();
-    long time = System.nanoTime() - ms;
+//    while (System.nanoTime()-ms < 2000000l && next.size() > 0)
+      step();
     background(BG);
     
     board.draw(g, mouseX, mouseY);
@@ -134,8 +138,10 @@ public class Main extends PApplet {
     selection.draw(g, mouseX, mouseY);
     board.drawHeld(g);
     
-    if (frameCount%60==0) System.out.println(frameRate+" "+next.size()+" "+time);
+    if (frameCount%60==0) System.out.println(frameRate+" "+next.size());
     pmousePressed = mousePressed;
+//    System.out.println(ctr);
+    ctr = 0;
   }
   
   @Override
@@ -155,7 +161,7 @@ public class Main extends PApplet {
       try {
         String s = (String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
         board.importStr(new Scanner(s), board.fmX(mouseX), board.fmY(mouseY));
-      } catch (LoadException | UnsupportedFlavorException | IOException err) {
+      } catch (NoSuchElementException | LoadException | UnsupportedFlavorException | IOException err) {
         err.printStackTrace();
       }
     }
@@ -163,11 +169,21 @@ public class Main extends PApplet {
       try {
         String s = (String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
         CustomGateFactory.load(new Scanner(s));
-      } catch (LoadException | UnsupportedFlavorException | IOException err) {
+      } catch (NoSuchElementException | LoadException | UnsupportedFlavorException | IOException err) {
         err.printStackTrace();
       }
     }
 //    System.out.println((+key)+" "+ keyCode);
+    if (board.selected.size() == 1) {
+      if (key >= ' ' && key <= '~' || key == 8) {
+        Gate g = board.selected.get(0);
+        if (g.name != null) {
+          if (key == 8) {
+            if (g.name.length() > 0) g.name = g.name.substring(0, g.name.length()-1);
+          } else g.name+= key;
+        }
+      }
+    }
     switch (key) {
       case '1':
         board.add(new TrueGate(board.fmX(mouseX), board.fmY(mouseY)));
@@ -186,11 +202,11 @@ public class Main extends PApplet {
         Circuit ic = new Circuit();
         try {
           ic.importStr(new Scanner(s), 0, 0);
-        } catch (LoadException err) {
+        } catch (NoSuchElementException | LoadException err) {
           err.printStackTrace();
         }
         break;
-      case 8: case 127:
+      case 127:
         board.removeSelected();
         break;
     }
