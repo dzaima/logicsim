@@ -8,18 +8,16 @@ import static logicsim.wiretypes.BasicWire.*;
 public class LampGate extends Gate {
   private boolean b;
   
-  public LampGate(float x, float y, String name) {
-    super(ONE_WIRE, NOTHING, x, y);
+  public LampGate(float x, float y, int rot, String name) {
+    super(ONE_WIRE, NOTHING, x, y, rot, new PVector[]{new PVector(-20, 0)}, new PVector[0]);
     this.name = name;
-    ips = new PVector[]{new PVector(-20, 0)};
-    ops = new PVector[0];
   }
   
   public static GateHandler handler() {
     return s -> {
       String[] a = s.nextLine().split(" ");
       String name = s.nextLine();
-      return new LampGate(Float.parseFloat(a[0]), Float.parseFloat(a[1]), name);
+      return new LampGate(Float.parseFloat(a[0]), Float.parseFloat(a[1]), Integer.parseInt(a[2]), name);
     };
   }
   
@@ -37,22 +35,22 @@ public class LampGate extends Gate {
     if (selected) {
       g.noStroke();
       g.fill(Main.SELECTED);
-      g.ellipse(x, y, 25, 25);
+      g.ellipse(0, 0, 25, 25);
     }
     g.fill(b? Main.ON_LAMP : Main.OFF_LAMP);
     g.stroke(Main.CIRCUIT_BORDERS);
     
-    g.ellipse(x, y, 20, 20);
+    g.ellipse(0, 0, 20, 20);
     drawIO(g);
   }
   
   @Override
   public Gate cloneCircuit(float x, float y) {
-    return new LampGate(x, y, name);
+    return new LampGate(x, y, rot, name);
   }
   
   public String def(float xoff, float yoff) {
-    return "LampGate\n" + (x-xoff) + " " + (y-yoff) + "\n" + name;
+    return "LampGate\n" + (x-xoff) + " " + (y-yoff) + " " + rot + "\n" + name;
   }
   
   @Override

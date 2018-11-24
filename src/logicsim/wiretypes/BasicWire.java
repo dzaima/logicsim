@@ -42,21 +42,26 @@ public class BasicWire extends WireType {
     }
   
     @Override
-    public void draw(PGraphics g, float x, float y, float x2, float y2) {
+    public void draw(PGraphics g, float x1, float y1, float x2, float y2, int r1, int r2) {
       float f = 30;
       g.strokeCap(g.SQUARE);
       g.noFill();
+      int[] ri = Connection.rotations[r1];
+      int[] ro = Connection.rotations[r2];
       
       g.strokeWeight(7);
       g.stroke(Main.CIRCUIT_BORDERS);
-      g.bezier(x2, y2, x2+f, y2, x-f, y, x, y);
+      g.bezier(
+        x1, y1, x1 + f*ri[0], y1 + f*ri[1],
+                x2 - f*ro[0], y2 - f*ro[1], x2, y2);
   
   
       g.strokeWeight(4);
       if (b) g.stroke(Main.ON_COLOR);
       else g.stroke(Main.OFF_COLOR);
-      g.bezier(x2, y2, x2+f, y2, x-f, y, x, y);
-//      g.line(x, y, x2, y2);
+      g.bezier(
+        x1, y1, x1 + f*ri[0], y1 + f*ri[1],
+                x2 - f*ro[0], y2 - f*ro[1], x2, y2);
     }
     @Override
     public String toString() {

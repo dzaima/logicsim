@@ -5,6 +5,7 @@ import processing.awt.PGraphicsJava2D;
 import processing.core.*;
 
 import java.awt.*;
+import java.util.Arrays;
 
 import static logicsim.wiretypes.BasicWire.BasicConnection;
 
@@ -16,23 +17,15 @@ public class CustomGate extends Gate {
   private int width;
   private int height;
   
-  public CustomGate(WireType[] its, WireType[] ots, float x, float y, CustomGateFactory f) {
-    super(its, ots, x, y);
+  public CustomGate(WireType[] its, WireType[] ots, float x, float y, int rot, CustomGateFactory f, PVector[] ips, PVector[] ops, int width, int height) {
+    super(its, ots, x, y, rot, ips, ops);
+    this.width = width;
+    this.height = height;
     this.f = f;
     refresh();
   }
   
   private void refresh() {
-    width = 30;
-    height = Math.max(Math.max(is.length, os.length)*10, 20);
-    ips = new PVector[its.length];
-    for (int i = 0; i < its.length; i++) {
-      ips[i] = new PVector(-width-20, (i-its.length/2f+.5f)*20);
-    }
-    ops = new PVector[ots.length];
-    for (int i = 0; i < ots.length; i++) {
-      ops[i] = new PVector(width+20, (i-ots.length/2f+.5f)*20);
-    }
     c = f.c.copy();
     c.calculateEdges();
     igs = new Gate[its.length];
@@ -63,9 +56,9 @@ public class CustomGate extends Gate {
     return s -> {
       String name = s.nextLine();
       if (!Main.gateLibrary.containsKey(name)) throw new LoadException("IC "+name+" unknown");
-      String[] pos = s.nextLine().split(" ");
+      String[] a = s.nextLine().split(" ");
       CustomGateFactory f = Main.gateLibrary.get(name);
-      return f.create(Float.parseFloat(pos[0]), Float.parseFloat(pos[1]));
+      return f.create(Float.parseFloat(a[0]), Float.parseFloat(a[1]), Integer.parseInt(a[2]));
     };
   }
   
@@ -86,7 +79,7 @@ public class CustomGate extends Gate {
   
   @Override
   public Gate cloneCircuit(float x, float y) {
-    return new CustomGate(its, ots, x, y, f);
+    return new CustomGate(its, ots, x, y, rot, f, ips, ops, width, height);
   }
   
   @Override
@@ -94,17 +87,27 @@ public class CustomGate extends Gate {
     float change;
     if (g instanceof PGraphicsJava2D) {
       g.pushMatrix();
-        g.translate(x, y);
+//        g.translate(x, y);
         g.scale(.05f);
         Graphics2D i = ((PGraphicsJava2D) g).g2;
         float[] pts = new float[]{c.lx, c.ly, c.bx, c.by, 0, 0, 10, 0};
         float[] opts = new float[8];
         i.getTransform().transform(pts, 0, opts, 0, 4);
+        if (opts[0] > opts[2]) {
+          float t = opts[0];
+          opts[0] = opts[2];
+          opts[2] = t;
+        }
+        if (opts[1] > opts[3]) {
+          float t = opts[1];
+          opts[1] = opts[3];
+          opts[3] = t;
+        }
         float lX = Math.max(opts[0], 0);
         float rX = Math.min(opts[2], g.width);
         float bY = Math.max(opts[1], 0);
         float tY = Math.min(opts[3], g.height);
-        float t = opts[6] - opts[4];
+        float t = Math.abs(opts[6] - opts[4] + opts[7]-opts[5]);
         if (rX > lX && tY > bY) {
           change = PApplet.constrain(PApplet.map(t, 1, 5, 0, 1), 0, 1);
         } else {
@@ -117,13 +120,13 @@ public class CustomGate extends Gate {
     if (selected) {
       g.noStroke();
       g.fill(Main.SELECTED);
-      g.rect(x, y, width+5, height+5);
+      g.rect(0, 0, width+5, height+5);
     }
     g.stroke(Main.CIRCUIT_BORDERS);
     int rgb = Main.instance.lerpColor(Main.CIRCUIT_COLOR, Main.BG, change);
     g.fill(rgb);
     g.strokeWeight(3);
-    g.rect(x, y, width, height); // main rect
+    g.rect(0, 0, width, height); // main rect
     
     
     int mask = ((int) (255-change*255) << 24);
@@ -131,14 +134,14 @@ public class CustomGate extends Gate {
     if (change > 0) { // draw inner circuit
       Main.ctr++;
       g.pushMatrix();
-        g.translate(x, y);
+//        g.translate(x, y);
         g.scale(.05f);
         c.draw(g, 0, 0);
       g.popMatrix();
       g.rectMode(g.RADIUS);
       g.fill(rgb&0xffffff | mask);
       g.strokeWeight(3);
-      g.rect(x, y, width, height); // main rect
+      g.rect(0, 0, width, height); // main rect
     }
     
     g.textSize(10);
@@ -146,24 +149,24 @@ public class CustomGate extends Gate {
     int textcol = Main.TEXT_COLOR & 0xffffff | mask;
     if (textcol < 0 || textcol > 255) {
       for (int i = 0; i < its.length; i++) {
-        float cy = y + (i - its.length / 2f + .5f) * 20;
+        float cy = (i - its.length / 2f + .5f) * 20;
         g.fill(Main.CIRCUIT_COLOR);
-        g.line(x - width, cy, x - width - 20, cy);
+        g.line(-width, cy, -width - 20, cy);
     
         g.fill(textcol);
-        g.text(f.ins[i], x - width + 2, cy - 1);
+        g.text(f.ins[i], -width + 2, cy - 1);
       }
       g.textAlign(g.RIGHT, g.CENTER);
       for (int i = 0; i < ots.length; i++) { // labels
-        float cy = y + (i - ots.length / 2f + .5f) * 20;
+        float cy = (i - ots.length / 2f + .5f) * 20;
         g.fill(Main.CIRCUIT_COLOR);
-        g.line(x + width, cy, x + width + 20, cy);
+        g.line(width, cy, width + 20, cy);
         g.fill(textcol);
-        g.text(f.ons[i], x + width - 2, cy - 1);
+        g.text(f.ons[i], width - 2, cy - 1);
       }
     }
     g.pushMatrix();
-      g.translate(x, y);
+//      g.translate(x, y);
       g.rotate(PConstants.HALF_PI);
       g.textAlign(PConstants.CENTER, PConstants.CENTER);
       g.text(f.name, 0, 0);
@@ -179,6 +182,6 @@ public class CustomGate extends Gate {
   @Override
   public String def(float xoff, float yoff) {
     String[] ss = getClass().getName().split("\\.");
-    return ss[ss.length-1] + "\n" + f.name + "\n" + (x-xoff)+" "+(y-yoff);
+    return ss[ss.length-1] + "\n" + f.name + "\n" + (x-xoff)+" "+(y-yoff)+" "+rot;
   }
 }

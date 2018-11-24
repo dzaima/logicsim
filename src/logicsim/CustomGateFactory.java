@@ -2,6 +2,7 @@ package logicsim;
 
 import logicsim.gates.CustomGate;
 import logicsim.wiretypes.BasicWire;
+import processing.core.PVector;
 
 import java.util.*;
 
@@ -47,7 +48,7 @@ public class CustomGateFactory {
   
         CustomGateFactory f = new CustomGateFactory(c, name, is.toArray(new String[0]), os.toArray(new String[0]));
         Main.gateLibrary.put(name, f);
-        Main.board.add(f.create(0, 0));
+        Main.board.add(f.create(0, 0, 0));
       }
     } catch (NumberFormatException e) {
       e.printStackTrace();
@@ -58,8 +59,18 @@ public class CustomGateFactory {
     }
   }
   
-  public CustomGate create(float x, float y) {
-    CustomGate cg = new CustomGate(its.clone(), ots.clone(), x, y, this);
+  public CustomGate create(float x, float y, int rot) {
+    int width = 30;
+    int height = Math.max(Math.max(its.length, ots.length) * 10, 20);
+    PVector[] ips = new PVector[its.length];
+    for (int i = 0; i < its.length; i++) {
+      ips[i] = new PVector(-width-20, (i-its.length/2f+.5f)*20);
+    }
+    PVector[] ops = new PVector[ots.length];
+    for (int i = 0; i < ots.length; i++) {
+      ops[i] = new PVector(width+20, (i-ots.length/2f+.5f)*20);
+    }
+    CustomGate cg = new CustomGate(its.clone(), ots.clone(), x, y, rot, this, ips, ops, width, height);
     instances.add(cg);
     return cg;
   }

@@ -8,23 +8,24 @@ import java.awt.*;
 import java.awt.datatransfer.*;
 import java.io.IOException;
 import java.util.*;
+@SuppressWarnings("WeakerAccess") // public things are good
 public class Main extends PApplet {
   public static final int SELECTED = 0x606666ff;
   public static final int TEXT_COLOR = 0xff000000;
   public static final int MENUBG = 100;
   public static final int BG = 0xffC8C8C8;
-  private static final int SELBG = 180;
-  public static int CIRCUIT_COLOR = 0xffffffff;
-  public static int CIRCUIT_BORDERS = 0xff000000;
-  public static int CIRCUIT_TEXT = 0xff000000;
-  public static int INPUT_COLOR = 0xffffffff;
-  public static int OUTPUT_COLOR = 0xffb0e0ff;
-  public static int OFF_COLOR = 0xffffffff;
-  public static int ON_COLOR = 0xff2090e0;
-  public static int ON_LAMP = 0xff2090e0;
-  public static int OFF_LAMP = 0xffffffff;
-  public static Set<Gate> next;
+  public static final int SELBG = 180;
+  public static final int CIRCUIT_COLOR = 0xffffffff;
+  public static final int CIRCUIT_BORDERS = 0xff000000;
+  public static final int CIRCUIT_TEXT = 0xff000000;
+  public static final int INPUT_COLOR = 0xffffffff;
+  public static final int OUTPUT_COLOR = 0xffb0e0ff;
+  public static final int OFF_COLOR = 0xffffffff;
+  public static final int ON_COLOR = 0xff2090e0;
+  public static final int ON_LAMP = 0xff2090e0;
+  public static final int OFF_LAMP = 0xffffffff;
   public static int ctr;
+  public static Set<Gate> next;
   public static Main instance;
   static Circuit board;
   private SelectionCircuit selection;
@@ -60,14 +61,14 @@ public class Main extends PApplet {
     board = new Circuit();
     selection = new SelectionCircuit();
     selection.add(
-      new TrueGate(100, 50),
-      new NandGate(100, 100),
-      new AndGate(100, 150),
-      new LatchGate(100, 200),
-      new NumGate(100, 350),
-      new SwitchGate(100, 420, ""),
-      new LampGate(100, 490, ""),
-      new ButtonGate(100, 550)
+      new TrueGate(100, 50, 0),
+      new NandGate(100, 100, 0),
+      new AndGate(100, 150,0),
+      new LatchGate(100, 200,0),
+      new NumGate(100, 340, 0),
+      new SwitchGate(100, 420, 0, ""),
+      new LampGate(100, 490, 0, ""),
+      new ButtonGate(100, 550, 0)
     );
 //    TrueGate tg = new TrueGate(100, 200);
 //
@@ -204,6 +205,14 @@ public class Main extends PApplet {
 //      case '4':
 //        board.add(new LampGate(board.fmX(mouseX), board.fmY(mouseY), ""));
 //        break;
+      case 'e':
+        for (Gate g : board.selected)
+          g.rotate((g.rot+1) % 4);
+        break;
+      case 'q':
+        for (Gate g : board.selected)
+          g.rotate((g.rot+3) % 4);
+        break;
       case 'i': // create IC
         String s = Circuit.exportStr(board.selected);
         Circuit ic = new Circuit();

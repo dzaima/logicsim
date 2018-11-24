@@ -3,21 +3,17 @@ package logicsim.gates;
 import logicsim.*;
 import processing.core.*;
 
-import java.util.Scanner;
-
 import static logicsim.wiretypes.BasicWire.*;
 
 public class TrueGate extends Gate {
-  public TrueGate(float x, float y) {
-    super(NOTHING, ONE_WIRE, x, y);
-    ips = new PVector[0];
-    ops = new PVector[]{new PVector(40, 0)};
+  public TrueGate(float x, float y, int rot) {
+    super(NOTHING, ONE_WIRE, x, y, rot, new PVector[0], new PVector[]{new PVector(40, 0)});
   }
   
   public static GateHandler handler() {
     return s -> {
       String[] a = s.nextLine().split(" ");
-      return new TrueGate(Float.parseFloat(a[0]), Float.parseFloat(a[1]));
+      return new TrueGate(Float.parseFloat(a[0]), Float.parseFloat(a[1]), Integer.parseInt(a[2]));
     };
   }
   
@@ -32,21 +28,21 @@ public class TrueGate extends Gate {
     if (selected) {
       g.noStroke();
       g.fill(Main.SELECTED);
-      g.rect(x, y, 25, 25);
+      g.rect(0, 0, 25, 25);
     }
     
     g.stroke(Main.CIRCUIT_BORDERS);
     g.fill(Main.CIRCUIT_COLOR);
     g.strokeWeight(3);
   
-    g.line(x+20, y, x+40, y);
+    g.line(20, 0, 40, 0);
   
-    g.rect(x, y, 20, 20);
+    g.rect(0, 0, 20, 20);
     
     g.fill(Main.CIRCUIT_TEXT);
     g.textAlign(g.CENTER, g.CENTER);
     g.textSize(20);
-    g.text("1", x, y);
+    g.text("1", 0, 0);
     
     drawIO(g);
   }
@@ -58,6 +54,6 @@ public class TrueGate extends Gate {
   
   @Override
   public Gate cloneCircuit(float x, float y) {
-    return new TrueGate(x, y);
+    return new TrueGate(x, y, rot);
   }
 }

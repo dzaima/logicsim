@@ -44,12 +44,17 @@ public abstract class Connection {
     return false;
   }
   
+  protected static int[][] rotations = {{-1, 0}, {0, -1}, {1, 0}, {0, 1}};
+  
   @Contract(pure = true)
-  public void draw(PGraphics g, float x, float y, float x2, float y2) {
+  public void draw(PGraphics g, float x1, float y1, float x2, float y2, int r1, int r2) {
     g.strokeWeight(5);
     g.stroke(Main.OFF_COLOR);
     float f = 30;
-    g.bezier(x, y, x+f, y, x2-f, y2, x2, y2);
-//    g.line(x, y, x2, y2);
+    int[] ri = rotations[r1];
+    int[] ro = rotations[r2];
+    g.bezier(
+      x1, y1, x1 + f*ri[0], y1 + f*ri[1],
+      x2, y2, x2 - f*ro[0], y2 - f*ro[1]);
   }
 }

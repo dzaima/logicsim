@@ -3,21 +3,21 @@ package logicsim.gates;
 import logicsim.*;
 import processing.core.*;
 
-import java.util.Scanner;
-
 import static logicsim.wiretypes.BasicWire.*;
 
 public class NandGate extends Gate {
-  public NandGate(float x, float y) {
-    super(TWO_WIRES, ONE_WIRE, x, y);
-    ips = new PVector[]{new PVector(-35, 10), new PVector(-35, -10)};
-    ops = new PVector[]{new PVector(40, 0)};
+
+  public NandGate(float x, float y, int rot) {
+    super(TWO_WIRES, ONE_WIRE, x, y, rot,
+      new PVector[]{new PVector(-35, 10), new PVector(-35, -10)},
+      new PVector[]{new PVector(40, 0)}
+    );
   }
   
   public static GateHandler handler() {
     return s -> {
       String[] a = s.nextLine().split(" ");
-      return new NandGate(Float.parseFloat(a[0]), Float.parseFloat(a[1]));
+      return new NandGate(Float.parseFloat(a[0]), Float.parseFloat(a[1]), Integer.parseInt(a[2]));
     };
   }
   
@@ -40,32 +40,32 @@ public class NandGate extends Gate {
       g.noStroke();
       g.fill(Main.SELECTED);
       g.beginShape();
-      g.vertex(x-0, y+25);
-      g.vertex(x-25, y+25);
-      g.vertex(x-25, y-25);
-      g.vertex(x-0, y-25);
-      for(int i = 0; i < 31; i++) {
-        double r = i/30d * Math.PI;
-        g.vertex(x + (float) Math.sin(r) * 25, y + (float) Math.cos(r) * 25);
-      }
+        g.vertex(-0, +25);
+        g.vertex(-25, +25);
+        g.vertex(-25, -25);
+        g.vertex(-0, -25);
+        for(int i = 0; i < 31; i++) {
+          double r = i/30d * Math.PI;
+          g.vertex((float) Math.sin(r) * 25, (float) Math.cos(r) * 25);
+        }
       g.endShape(PConstants.CLOSE);
     }
-    
+  
     g.fill(Main.CIRCUIT_COLOR);
     g.stroke(Main.CIRCUIT_BORDERS);
-    
-    g.line(x+20 , y, x+40, y); // output line
-    g.line(x-20, y+10, x-35, y+10); // input lines
-    g.line(x-20, y-10, x-35, y-10); // input lines
-    g.ellipse(x+24, y, 4, 4); // invert
-    
-    g.ellipse(x, y, 20, 20); // elliptical body
-    
+  
+    g.line( 20,   0,  40,   0); // output line
+    g.line(-20,  10, -35,  10); // input lines
+    g.line(-20, -10, -35, -10); // input lines
+    g.ellipse(24, 0, 4, 4); // invert
+  
+    g.ellipse(0, 0, 20, 20); // elliptical body
+  
     g.beginShape(); // rectangular body
-    g.vertex(x-0, y+20);
-    g.vertex(x-20, y+20);
-    g.vertex(x-20, y-20);
-    g.vertex(x-0, y-20);
+      g.vertex(  0,  20);
+      g.vertex(-20,  20);
+      g.vertex(-20, -20);
+      g.vertex(  0, -20);
     g.endShape();
     drawIO(g);
   }
@@ -79,6 +79,6 @@ public class NandGate extends Gate {
   
   @Override
   public Gate cloneCircuit(float x, float y) {
-    return new NandGate(x, y);
+    return new NandGate(x, y, rot);
   }
 }

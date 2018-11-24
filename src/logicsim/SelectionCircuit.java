@@ -13,7 +13,13 @@ class SelectionCircuit extends Circuit {
     }
     g.translate(-offX * scale, -offY * scale);
     g.scale(scale);
-    for (Gate gate : gates) gate.draw(g);
+    for (Gate cg : gates) {
+      g.pushMatrix();
+      g.translate(cg.x, cg.y);
+      g.rotate(cg.rot * PConstants.HALF_PI);
+      cg.draw(g);
+      g.popMatrix();
+    }
     pmx = mx;
     pmy = my;
     g.popMatrix();

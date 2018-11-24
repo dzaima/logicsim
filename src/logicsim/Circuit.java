@@ -29,10 +29,12 @@ public class Circuit {
   }
   
   void drawHeld(PGraphics g) {
+    if (held == null) return;
     g.pushMatrix();
       g.translate(-offX * scale, -offY * scale);
       g.scale(scale);
-      if (held != null) held.draw(g);
+      g.translate(held.x, held.y);
+      held.draw(g);
     g.popMatrix();
   }
   
@@ -61,7 +63,13 @@ public class Circuit {
       }
     }
     for (Gate gate : gates) gate.drawConnections(g);
-    for (Gate gate : gates) gate.draw(g);
+    for (Gate cg : gates) {
+      g.pushMatrix();
+        g.translate(cg.x, cg.y);
+        g.rotate(cg.rot * PConstants.HALF_PI);
+        cg.draw(g);
+      g.popMatrix();
+    }
     if (t == HoldType.select) {
       g.noStroke();
       g.fill(Main.SELECTED);
@@ -70,12 +78,12 @@ public class Circuit {
     }
     if (held != null) {
       if (t == HoldType.out) {
-        PVector p = held.ops[heldPos];
+        PVector p = held.opsr[heldPos];
         g.stroke(Main.CIRCUIT_BORDERS);
         g.line(fmX(mx), fmY(my), p.x+held.x, p.y+held.y);
       }
       if (t == HoldType.in) {
-        PVector p = held.ips[heldPos];
+        PVector p = held.ipsr[heldPos];
         g.stroke(Main.CIRCUIT_BORDERS);
         g.line(fmX(mx), fmY(my), p.x+held.x, p.y+held.y);
       }
