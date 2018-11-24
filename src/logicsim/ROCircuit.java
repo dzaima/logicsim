@@ -1,5 +1,7 @@
 package logicsim;
 
+import processing.core.PGraphics;
+
 import java.util.Scanner;
 
 public class ROCircuit extends Circuit {
@@ -27,13 +29,13 @@ public class ROCircuit extends Circuit {
   }
   
   @Override
-  public ROCircuit copy() {
+  public ROCircuit readOnlyCopy(PGraphics g) {
     ROCircuit n = new ROCircuit();
     try {
       n.importStr(new Scanner(exportStr(gates)), 0, 0);
     } catch (LoadException e) {
       e.printStackTrace();
-      throw new IllegalStateException("Circuit::copy failed to export & import");
+      throw new IllegalStateException("Circuit::readOnlyCopy failed to export & import");
     }
     n.unselectAll();
     return n;

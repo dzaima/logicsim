@@ -5,7 +5,7 @@ import processing.core.*;
 
 import java.util.*;
 
-public class Circuit {
+public abstract class Circuit {
   public ArrayList<Gate> gates;
   Circuit() {
     gates = new ArrayList<>();
@@ -51,7 +51,7 @@ public class Circuit {
         float dx = (mx-pmx) / scale;
         float dy = (my-pmy) / scale;
         if (!held.selected) {
-          if(!selected.isEmpty()) unselectAll();
+//          if(!selected.isEmpty()) unselectAll();
           held.x+= dx;
           held.y+= dy;
         } else {
@@ -91,20 +91,10 @@ public class Circuit {
     pmx = mx;
     pmy = my;
     g.popMatrix();
-    if (selected.size() == 1) {
-      g.fill(Main.MENUBG);
-      g.noStroke();
-      g.rectMode(g.CORNER);
-      g.rect(g.width-200, g.height-100, 200, 100);
-      g.textAlign(g.LEFT, g.CENTER);
-      g.fill(200);
-      Gate gt = selected.get(0);
-      if (gt.name != null) g.text(gt.name, g.width-190, g.height-50);
-    }
   }
   
   void unselectAll() {
-    while(!selected.isEmpty()) unselect(selected.get(0));
+    while (!selected.isEmpty()) unselect(selected.get(0));
   }
   
   boolean lmpressed = false;
@@ -154,6 +144,7 @@ public class Circuit {
     for (int i = gates.size()-1; i>=0; i--) {
       Gate g = gates.get(i);
       if (g.in(mX, mY)) {
+//        g.click(); // uncomment to have left click click things
         if (selected.contains(g)) unselect(g);
         else {
           if (!Main.shiftPressed) unselectAll();
@@ -249,13 +240,13 @@ public class Circuit {
     return o.toString();
   }
   
-  public Circuit copy() {
-    Circuit n = new Circuit();
+  public Circuit readOnlyCopy(PGraphics g) {
+    Circuit n = new ROCircuit();
     try {
       n.importStr(new Scanner(exportStr(gates)), 0, 0);
     } catch (LoadException e) {
       e.printStackTrace();
-      throw new IllegalStateException("Circuit::copy failed to export & import");
+      throw new IllegalStateException("Circuit::readOnlyCopy failed to export & import");
     }
     return n;
   }
@@ -290,13 +281,13 @@ public class Circuit {
         return;
       }
     }
-    unselectAll();
     selectX = mX;
     selectY = mY;
     t = HoldType.select;
   }
   
   void leftReleased(int imX, int imY) {
+    unselectAll();
     float mX = fmX(imX);
     float mY = fmY(imY);
     if (t == HoldType.out) {
@@ -344,6 +335,7 @@ public class Circuit {
       }
     }
     if (t == HoldType.select) {
+      unselectAll();
       float lx = Math.min(selectX, mX);
       float bx = Math.max(selectX, mX);
       float ly = Math.min(selectY, mY);

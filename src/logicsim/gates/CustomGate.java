@@ -5,7 +5,6 @@ import processing.awt.PGraphicsJava2D;
 import processing.core.*;
 
 import java.awt.*;
-import java.util.Arrays;
 
 import static logicsim.wiretypes.BasicWire.BasicConnection;
 
@@ -26,7 +25,7 @@ public class CustomGate extends Gate {
   }
   
   private void refresh() {
-    c = f.c.copy();
+    c = f.c.readOnlyCopy(Main.instance.g);
     c.calculateEdges();
     igs = new Gate[its.length];
     for (int i = 0; i < f.ins.length; i++) {
@@ -131,7 +130,7 @@ public class CustomGate extends Gate {
     
     int mask = ((int) (255-change*255) << 24);
     
-    if (change > 0) { // draw inner circuit
+    if (change > 0) { // update inner circuit
       Main.ctr++;
       g.pushMatrix();
 //        g.translate(x, y);

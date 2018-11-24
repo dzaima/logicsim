@@ -1,12 +1,12 @@
 package logicsim;
 
 import logicsim.gates.*;
+import logicsim.gui.TextField;
 import processing.core.*;
 import processing.event.*;
 
 import java.awt.*;
 import java.awt.datatransfer.*;
-import java.io.IOException;
 import java.util.*;
 @SuppressWarnings("WeakerAccess") // public things are good
 public class Main extends PApplet {
@@ -31,6 +31,7 @@ public class Main extends PApplet {
   private SelectionCircuit selection;
   public static HashMap<String, CustomGateFactory> gateLibrary;
   static HashMap<String, Gate.GateHandler> handlers;
+  public static TextField textField;
   static public void main(String[] passedArgs) {
     handlers = new HashMap<>();
     handlers.put("TrueGate", TrueGate.handler());
@@ -54,11 +55,13 @@ public class Main extends PApplet {
   public void settings() {
     instance = this;
     size(900, 600);
-//    smooth(0);
-    
-//    size(500, 500, "processing.javafx.PGraphicsFX2D");
+  }
+  private boolean clickSelection;
+  @Override
+  public void setup() {
+//    surface.setResizable(true);
     next = new HashSet<>();
-    board = new Circuit();
+    board = new EditableCircuit();
     selection = new SelectionCircuit();
     selection.add(
       new TrueGate(100, 50, 0),
@@ -70,22 +73,6 @@ public class Main extends PApplet {
       new LampGate(100, 490, 0, ""),
       new ButtonGate(100, 550, 0)
     );
-//    TrueGate tg = new TrueGate(100, 200);
-//
-//    NandGate fg = new NandGate(100, 100);
-//    fg.setInput(0, tg, 0);
-//    fg.setInput(1, tg, 0);
-//
-//    NandGate nand = new NandGate(200, 50);
-//    nand.setInput(0, tg, 0);
-//    nand.setInput(1, fg, 0);
-    
-//    board.add(tg, fg, nand);
-  }
-  private boolean clickSelection;
-  @Override
-  public void setup() {
-//    surface.setResizable(true);
   }
   private boolean pmousePressed;
   private void step() {
@@ -150,6 +137,7 @@ public class Main extends PApplet {
     pmousePressed = mousePressed;
 //    System.out.println(ctr);
     ctr = 0;
+    if (textField != null && !textField.wasDrawn()) textField = null;
   }
   
   @Override
@@ -159,8 +147,12 @@ public class Main extends PApplet {
   
   @Override
   public void keyPressed(KeyEvent e) {
-    shiftPressed = e.isShiftDown(); // save selection
-    if (key == 3 && keyCode == 67) {
+    if (textField != null) {
+      textField.toAppend.add(key);
+      return;
+    }
+    shiftPressed = e.isShiftDown();
+    if (key == 3 && keyCode == 67) { // copy selection
       StringSelection selection = new StringSelection(Circuit.exportStr(board.selected));
       Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
       clipboard.setContents(selection, selection);
@@ -169,7 +161,7 @@ public class Main extends PApplet {
       try {
         String s = (String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
         board.importStr(new Scanner(s), board.fmX(mouseX), board.fmY(mouseY));
-      } catch (NoSuchElementException | LoadException | UnsupportedFlavorException | IOException err) {
+      } catch (Throwable err) {
         err.printStackTrace();
       }
     }
@@ -177,21 +169,11 @@ public class Main extends PApplet {
       try {
         String s = (String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
         CustomGateFactory.load(new Scanner(s));
-      } catch (NoSuchElementException | LoadException | UnsupportedFlavorException | IOException err) {
+      } catch (Throwable err) {
         err.printStackTrace();
       }
     }
 //    System.out.println((+key)+" "+ keyCode);
-    if (board.selected.size() == 1) {
-      if (key >= ' ' && key <= '~' || key == 8) {
-        Gate g = board.selected.get(0);
-        if (g.name != null) {
-          if (key == 8) {
-            if (g.name.length() > 0) g.name = g.name.substring(0, g.name.length()-1);
-          } else g.name+= key;
-        }
-      }
-    }
     switch (key) {
 //      case '1':
 //        board.add(new TrueGate(board.fmX(mouseX), board.fmY(mouseY)));
@@ -215,10 +197,10 @@ public class Main extends PApplet {
         break;
       case 'i': // create IC
         String s = Circuit.exportStr(board.selected);
-        Circuit ic = new Circuit();
+        Circuit ic = new ROCircuit();
         try {
           ic.importStr(new Scanner(s), 0, 0);
-        } catch (NoSuchElementException | LoadException err) {
+        } catch (Throwable err) {
           err.printStackTrace();
         }
         break;
