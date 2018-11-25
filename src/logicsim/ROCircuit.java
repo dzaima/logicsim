@@ -7,6 +7,10 @@ import java.util.Scanner;
 public class ROCircuit extends Circuit {
   public float lx, ly, bx, by;
   
+  ROCircuit() {
+    super(0, 0, 0, 0);
+  }
+  
   public void calculateEdges() {
     lx = ly = Float.POSITIVE_INFINITY;
     bx = by = Float.NEGATIVE_INFINITY;
@@ -19,14 +23,10 @@ public class ROCircuit extends Circuit {
   }
   
   @Override
-  void leftPressed(int imX, int imY) {
-  
-  }
+  public void leftPressedI() { }
   
   @Override
-  void leftReleased(int imX, int imY) {
-  
-  }
+  public void leftReleasedI() { }
   
   @Override
   public ROCircuit readOnlyCopy(PGraphics g) {

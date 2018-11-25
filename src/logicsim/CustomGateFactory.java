@@ -48,7 +48,7 @@ public class CustomGateFactory {
   
         CustomGateFactory f = new CustomGateFactory(c, name, is.toArray(new String[0]), os.toArray(new String[0]));
         Main.gateLibrary.put(name, f);
-        Main.board.add(f.create(0, 0, 0));
+        Main.mainBoard.add(f.create(0, 0, 0));
       }
     } catch (NumberFormatException e) {
       e.printStackTrace();

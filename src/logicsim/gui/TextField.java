@@ -3,60 +3,39 @@ package logicsim.gui;
 import logicsim.Main;
 import processing.core.*;
 
-import java.util.ArrayList;
 
-
-public class TextField {
-  private final int w, h;
-  private float x, y;
-  private final int sz;
+public class TextField extends Drawable {
+  protected String text;
   
-  public ArrayList<Character> toAppend;
+  TextField(int x, int y, int w, int h) {
+    super(x, y, w, h);
+  }
   
-  private boolean wasDrawn = true;
-  
-  public TextField(int w, int h, int sz) {
+  @Override
+  protected void draw(PGraphics g) {
     
-    this.w = w;
-    this.h = h;
-    this.sz = sz;
-    toAppend = new ArrayList<>();
+    g.rectMode(PConstants.CORNER);
+    g.fill(Main.TEXTFIELD_COLOR);
+    g.stroke(Main.MENU_STROKE);
+    g.strokeWeight(2);
+    g.rect(x, y, w, h);
+    g.textSize(h*.8f);
+    g.fill(Main.TEXT_COLOR);
+    g.textAlign(PConstants.LEFT, PConstants.CENTER);
+    g.text(text+(Drawable.focused ==this && System.currentTimeMillis()%1000>500? "|" : ""), x+10, y+h/2f);
   }
   
-  public String update(PGraphics g, String text, int x, int y) {
-    this.x = x;
-    this.y = y-h/2f;
-    g.rectMode(PConstants.CORNER);
-    g.fill(Main.SELBG);
-    g.rect(x, this.y, w, h);
-    g.textAlign(PConstants.LEFT, PConstants.CENTER);
-    g.fill(Main.TEXT_COLOR);
-    g.textSize(sz);
-    g.text(text+(Main.textField==this && System.nanoTime()%1000000000L > 500000000L? "|" : ""), x, y);
-    wasDrawn = true;
-    for (char c : toAppend) {
-      if (c == 8) {
-        if (text.length() > 0) text = text.substring(0, text.length()-1);
-      } else {
-        //noinspection StringConcatenationInLoop 's not that bad yknow
-        text+= c;
-      }
-    }
-    toAppend.clear();
-    return text;
-  }
-  public boolean wasDrawn() {
-    boolean b = wasDrawn;
-    wasDrawn = false;
-    return b;
-  }
+  protected void updated() { } // for overriding
   
   public boolean in(float mX, float mY) {
     return mX > x && mY > y && mX < x+w && mX < x+w && mY < y+h;
   }
   
-  public void click() {
-    if (Main.textField == this) Main.textField = null;
-    else Main.textField = this;
+  @Override
+  protected void key(char key, int keyCode) {
+    if (key == 8) {
+      if (text.length() > 0) text = text.substring(0, text.length()-1);
+    } else text+= key;
+    updated();
   }
 }

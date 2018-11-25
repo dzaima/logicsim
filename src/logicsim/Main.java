@@ -1,37 +1,43 @@
 package logicsim;
 
 import logicsim.gates.*;
-import logicsim.gui.TextField;
+import logicsim.gui.*;
+import logicsim.gui.Window;
 import processing.core.*;
 import processing.event.*;
 
-import java.awt.*;
-import java.awt.datatransfer.*;
 import java.util.*;
 @SuppressWarnings("WeakerAccess") // public things are good
 public class Main extends PApplet {
   public static final int SELECTED = 0x606666ff;
   public static final int TEXT_COLOR = 0xff000000;
-  public static final int MENUBG = 100;
   public static final int BG = 0xffC8C8C8;
   public static final int SELBG = 180;
+  
   public static final int CIRCUIT_COLOR = 0xffffffff;
   public static final int CIRCUIT_BORDERS = 0xff000000;
   public static final int CIRCUIT_TEXT = 0xff000000;
   public static final int INPUT_COLOR = 0xffffffff;
   public static final int OUTPUT_COLOR = 0xffb0e0ff;
+  
   public static final int OFF_COLOR = 0xffffffff;
   public static final int ON_COLOR = 0xff2090e0;
   public static final int ON_LAMP = 0xff2090e0;
   public static final int OFF_LAMP = 0xffffffff;
+  
+  public static final int MENUBG = 100;
+  public static final int MENU_STROKE = 40;
+  public static final int TEXTFIELD_COLOR = 180;
   public static int ctr;
   public static Set<Gate> next;
   public static Main instance;
-  static Circuit board;
-  private SelectionCircuit selection;
   public static HashMap<String, CustomGateFactory> gateLibrary;
   static HashMap<String, Gate.GateHandler> handlers;
-  public static TextField textField;
+  public static EditableCircuit mainBoard;
+  static Drawable window;
+  public static int mX;
+  public static int mY;
+  
   static public void main(String[] passedArgs) {
     handlers = new HashMap<>();
     handlers.put("TrueGate", TrueGate.handler());
@@ -56,14 +62,16 @@ public class Main extends PApplet {
     instance = this;
     size(900, 600);
   }
-  private boolean clickSelection;
   @Override
   public void setup() {
 //    surface.setResizable(true);
     next = new HashSet<>();
-    board = new EditableCircuit();
-    selection = new SelectionCircuit();
-    selection.add(
+    window = new Window(0, 0, width, height);
+    SelectionCircuit sc = new SelectionCircuit(0, 0, 200, height);
+    window.add(sc);
+    mainBoard = new EditableCircuit(200, 0, width - 200, height);
+    window.add(mainBoard);
+    sc.add(
       new TrueGate(100, 50, 0),
       new NandGate(100, 100, 0),
       new AndGate(100, 150,0),
@@ -88,30 +96,28 @@ public class Main extends PApplet {
   private int smb;
   @Override
   public void draw() {
+    mX = mouseX;
+    mY = mouseY;
     if (mousePressed && !pmousePressed) { // click
       smb = mouseButton;
       mct = millis();
-      clickSelection = mouseX < 200;
-      Circuit in = clickSelection? selection : board;
       if (smb == LEFT) {
-        if (clickSelection) clickSelection = selection.clicked(mouseX, mouseY, board);
-        else in.leftPressed(mouseX, mouseY);
+        window.leftPressed();
       }
       else if (smb == RIGHT) {
-        in.rightPressed(mouseX, mouseY);
-      } else in.middleClick(mouseX, mouseY);
+        window.rightPressed();
+      } else window.middlePressed();
     }
     if (!mousePressed && pmousePressed) { // release
-      Circuit in = clickSelection? selection : board;
       if (smb == RIGHT) {
-        in.rightReleased();
+        window.rightReleased();
       } else if (smb == LEFT) {
-        in.leftReleased(mouseX, mouseY);
+        window.leftReleased();
         if (millis() - mct < 200) {
-          in.simpleClick(mouseX, mouseY);
+          window.simpleClick();
         }
       } else {
-        in.unMiddleClick(mouseX, mouseY);
+        window.middleReleased();
       }
     }
     long ns = System.nanoTime();
@@ -122,22 +128,16 @@ public class Main extends PApplet {
     } while (System.nanoTime() - ns < 200000L && next.size() > 0); // .2ms
     background(BG);
     
-    board.draw(g, mouseX, mouseY);
+    window.drawAll(g);
     
-    g.noStroke();
-    g.fill(Main.SELBG);
-    g.rectMode(g.CORNER);
-    rect(0, 0, 200, height);
     
     g.clip(0, 0, 200, height);
-    selection.draw(g, mouseX, mouseY);
-    board.drawHeld(g);
+    mainBoard.drawHeld(g);
     
     if (frameCount%60==0) System.out.println(frameRate+" "+next.size()+" "+d);
     pmousePressed = mousePressed;
 //    System.out.println(ctr);
     ctr = 0;
-    if (textField != null && !textField.wasDrawn()) textField = null;
   }
   
   @Override
@@ -147,76 +147,15 @@ public class Main extends PApplet {
   
   @Override
   public void keyPressed(KeyEvent e) {
-    if (textField != null) {
-      textField.toAppend.add(key);
-      return;
-    }
-    shiftPressed = e.isShiftDown();
-    if (key == 3 && keyCode == 67) { // copy selection
-      StringSelection selection = new StringSelection(Circuit.exportStr(board.selected));
-      Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-      clipboard.setContents(selection, selection);
-    }
-    if (key == 22 && keyCode == 86) { // load clip
-      try {
-        String s = (String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
-        board.importStr(new Scanner(s), board.fmX(mouseX), board.fmY(mouseY));
-      } catch (Throwable err) {
-        err.printStackTrace();
-      }
-    }
-    if (key == 9 && keyCode == 73) { // load IC
-      try {
-        String s = (String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
-        CustomGateFactory.load(new Scanner(s));
-      } catch (Throwable err) {
-        err.printStackTrace();
-      }
-    }
 //    System.out.println((+key)+" "+ keyCode);
-    switch (key) {
-//      case '1':
-//        board.add(new TrueGate(board.fmX(mouseX), board.fmY(mouseY)));
-//        break;
-//      case '2':
-//        board.add(new NandGate(board.fmX(mouseX), board.fmY(mouseY)));
-//        break;
-//      case '3':
-//        board.add(new SwitchGate(board.fmX(mouseX), board.fmY(mouseY), ""));
-//        break;
-//      case '4':
-//        board.add(new LampGate(board.fmX(mouseX), board.fmY(mouseY), ""));
-//        break;
-      case 'e':
-        for (Gate g : board.selected)
-          g.rotate((g.rot+1) % 4);
-        break;
-      case 'q':
-        for (Gate g : board.selected)
-          g.rotate((g.rot+3) % 4);
-        break;
-      case 'i': // create IC
-        String s = Circuit.exportStr(board.selected);
-        Circuit ic = new ROCircuit();
-        try {
-          ic.importStr(new Scanner(s), 0, 0);
-        } catch (Throwable err) {
-          err.printStackTrace();
-        }
-        break;
-      case 'c':
-        next = new HashSet<>();
-        break;
-      case 127:
-        board.removeSelected();
-        break;
-    }
+    shiftPressed = e.isShiftDown();
+    Drawable.keyD(key, keyCode);
+    
+    
   }
   
   @Override
   public void mouseWheel(MouseEvent event) {
-    clickSelection = mouseX < 200;
-    Circuit in = clickSelection? selection : board;
-    in.mouseWheel(event.getCount(), mouseX, mouseY);
+    Drawable.mouseWheelD(event.getCount());
   }
 }

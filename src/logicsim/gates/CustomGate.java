@@ -135,7 +135,7 @@ public class CustomGate extends Gate {
       g.pushMatrix();
 //        g.translate(x, y);
         g.scale(.05f);
-        c.draw(g, 0, 0);
+        c.draw(g);
       g.popMatrix();
       g.rectMode(g.RADIUS);
       g.fill(rgb&0xffffff | mask);

@@ -1,15 +1,25 @@
 package logicsim;
 
+import logicsim.gui.Drawable;
 import processing.core.*;
 
 class SelectionCircuit extends Circuit {
   
+  
+  SelectionCircuit(int x, int y, int w, int h) {
+    super(x, y, w, h);
+  }
+  
   @Override
-  public void draw(PGraphics g, int mx, int my) {
+  public void draw(PGraphics g) {
+    g.noStroke();
+    g.fill(Main.SELBG);
+    g.rectMode(g.CORNER);
+    g.rect(x, y, w, h);
     g.pushMatrix();
     if (mmpressed) {
-      offX += (pmx-mx) / scale;
-      offY += (pmy-my) / scale;
+      offX += (pmx-Main.mX) / scale;
+      offY += (pmy-Main.mY) / scale;
     }
     g.translate(-offX * scale, -offY * scale);
     g.scale(scale);
@@ -20,40 +30,35 @@ class SelectionCircuit extends Circuit {
       cg.draw(g);
       g.popMatrix();
     }
-    pmx = mx;
-    pmy = my;
     g.popMatrix();
+    pmx = Main.mX;
+    pmy = Main.mY;
   }
   
-  boolean clicked(int imX, int imY, Circuit c) {
-    float mX = fmX(imX);
-    float mY = fmY(imY);
+  @Override
+  protected void leftPressedI() {
+    float mX = fmX(Main.mX);
+    float mY = fmY(Main.mY);
+    EditableCircuit mb = Main.mainBoard;
     for (Gate g : gates) {
       if (g.in(mX, mY)) {
-        Gate n = g.cloneCircuit(c.fmX(imX), c.fmY(imY));
-        c.add(n);
-        c.held = n;
-        c.t = HoldType.gate;
-        c.lmpressed = true;
-        return false;
+        Gate n = g.cloneCircuit(mb.fmX(Main.mX), mb.fmY(Main.mY));
+        mb.add(n);
+        mb.held = n;
+        mb.t = HoldType.gate;
+        mb.lmpressed = true;
+        Drawable.focused = mb;
       }
     }
     lmpressed = true;
-    return true;
   }
   
   @Override
-  void rightPressed(int imX, int imY) {
-  
-  }
-  
+  public void rightPressedI() { }
   @Override
-  void rightReleased() {
-  
-  }
-  
+  public void rightReleasedI() { }
   @Override
-  void leftReleased(int imX, int imY) {
-  
-  }
+  public void leftReleasedI() { }
+  @Override
+  public void simpleClickI() { }
 }

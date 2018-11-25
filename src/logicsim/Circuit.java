@@ -1,13 +1,16 @@
 package logicsim;
 
+import logicsim.gui.Drawable;
 import org.jetbrains.annotations.Contract;
 import processing.core.*;
 
 import java.util.*;
 
-public abstract class Circuit {
+public abstract class Circuit extends Drawable {
   public ArrayList<Gate> gates;
-  Circuit() {
+  
+  Circuit(int x, int y, int w, int h) {
+    super(x, y, w, h);
     gates = new ArrayList<>();
   }
   
@@ -19,13 +22,14 @@ public abstract class Circuit {
   float offX, offY;
   float scale = 1; // 2 = 1/4th seen from before
   
-  void mouseWheel(int i, int mx, int my) {
+  @Override
+  protected void mouseWheel(int i) {
     double sc = i==1? .8 : 1/.8;
     double pS = scale;
     scale*= sc;
     double scaleChange = 1/scale - 1/pS;
-    offX -= (mx * scaleChange);
-    offY -= (my * scaleChange);
+    offX -= (Main.mX * scaleChange);
+    offY -= (Main.mY * scaleChange);
   }
   
   void drawHeld(PGraphics g) {
@@ -38,18 +42,18 @@ public abstract class Circuit {
     g.popMatrix();
   }
   
-  public void draw(PGraphics g, int mx, int my) {
+  public void draw(PGraphics g) {
     g.pushMatrix();
     if (mmpressed) {
-      offX += (pmx-mx) / scale;
-      offY += (pmy-my) / scale;
+      offX += (pmx-Main.mX) / scale;
+      offY += (pmy-Main.mY) / scale;
     }
     g.translate(-offX * scale, -offY * scale);
     g.scale(scale);
     if (held != null) {
       if (t == HoldType.gate) {
-        float dx = (mx-pmx) / scale;
-        float dy = (my-pmy) / scale;
+        float dx = (Main.mX-pmx) / scale;
+        float dy = (Main.mY-pmy) / scale;
         if (!held.selected) {
 //          if(!selected.isEmpty()) unselectAll();
           held.x+= dx;
@@ -74,22 +78,22 @@ public abstract class Circuit {
       g.noStroke();
       g.fill(Main.SELECTED);
       g.rectMode(g.CORNERS);
-      g.rect(selectX, selectY, fmX(mx), fmY(my));
+      g.rect(selectX, selectY, fmX(Main.mX), fmY(Main.mY));
     }
     if (held != null) {
       if (t == HoldType.out) {
         PVector p = held.opsr[heldPos];
         g.stroke(Main.CIRCUIT_BORDERS);
-        g.line(fmX(mx), fmY(my), p.x+held.x, p.y+held.y);
+        g.line(fmX(Main.mX), fmY(Main.mY), p.x+held.x, p.y+held.y);
       }
       if (t == HoldType.in) {
         PVector p = held.ipsr[heldPos];
         g.stroke(Main.CIRCUIT_BORDERS);
-        g.line(fmX(mx), fmY(my), p.x+held.x, p.y+held.y);
+        g.line(fmX(Main.mX), fmY(Main.mY), p.x+held.x, p.y+held.y);
       }
     }
-    pmx = mx;
-    pmy = my;
+    pmx = Main.mX;
+    pmy = Main.mY;
     g.popMatrix();
   }
   
@@ -109,9 +113,10 @@ public abstract class Circuit {
   }
   
   private Gate clicked;
-  void rightPressed(int imX, int imY) {
-    float mX = fmX(imX);
-    float mY = fmY(imY);
+  @Override
+  public void rightPressedI() {
+    float mX = fmX(Main.mX);
+    float mY = fmY(Main.mY);
     for (int i = gates.size()-1; i>=0; i--) {
       Gate g = gates.get(i);
       if (g.in(mX, mY)) {
@@ -121,7 +126,8 @@ public abstract class Circuit {
       }
     }
   }
-  void rightReleased() {
+  @Override
+  public void rightReleasedI() {
     if (clicked != null) {
       clicked.unclick();
       clicked = null;
@@ -138,9 +144,11 @@ public abstract class Circuit {
   }
   
   ArrayList<Gate> selected = new ArrayList<>();
-  void simpleClick(float mX, float mY) {
-    mX = fmX(mX);
-    mY = fmY(mY);
+  
+  @Override
+  public void simpleClickI() {
+    float mX = fmX(Main.mX);
+    float mY = fmY(Main.mY);
     for (int i = gates.size()-1; i>=0; i--) {
       Gate g = gates.get(i);
       if (g.in(mX, mY)) {
@@ -165,11 +173,13 @@ public abstract class Circuit {
   }
   
   
-  void middleClick(int mX, int mY) {
+  @Override
+  public void middlePressedI() {
     mmpressed = true;
   }
   
-  void unMiddleClick(int mX, int mY) {
+  @Override
+  public void middleReleasedI() {
     mmpressed = false;
   }
   
@@ -257,9 +267,10 @@ public abstract class Circuit {
   private float selectX, selectY;
   HoldType t;
   private int heldPos;
-  void leftPressed(int imX, int imY) {
-    float mX = fmX(imX);
-    float mY = fmY(imY);
+  @Override
+  protected void leftPressedI() {
+    float mX = fmX(Main.mX);
+    float mY = fmY(Main.mY);
     lmpressed = true;
     for (int i = gates.size()-1; i>=0; i--) {
       Gate g = gates.get(i);
@@ -286,10 +297,11 @@ public abstract class Circuit {
     t = HoldType.select;
   }
   
-  void leftReleased(int imX, int imY) {
-    unselectAll();
-    float mX = fmX(imX);
-    float mY = fmY(imY);
+  @Override
+  public void leftReleasedI() {
+//    unselectAll();
+    float mX = fmX(Main.mX);
+    float mY = fmY(Main.mY);
     if (t == HoldType.out) {
       WireType type = held.ots[heldPos];
       for (int i = gates.size()-1; i>=0; i--) {
@@ -329,7 +341,7 @@ public abstract class Circuit {
       }
     }
     if (t == HoldType.gate) {
-      if (imX < 200) {
+      if (Main.mX < 200) {
         held.delete();
         gates.remove(held);
       }
