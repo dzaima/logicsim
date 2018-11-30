@@ -29,11 +29,11 @@ public class ICCreator extends Drawable {
       public void clicked() {
         try {
           CustomGateFactory.load(new Scanner(generateIC()));
-          Main.mainBoard.importStr(
-            new Scanner("1\nCustomGate\n"+getName()+"\n0 0 0\n0"),
-            Main.mainBoard.fX(Main.mX),
-            Main.mainBoard.fY(Main.mY)
-          );
+//          Main.mainBoard.importStr(
+//            new Scanner("1\nCustomGate\n"+getName()+"\n0 0 0\n0"),
+//            Main.mainBoard.fX(Main.mX),
+//            Main.mainBoard.fY(Main.mY)
+//          );
           Main.window.remove(ICCreator.this);
         } catch (LoadException e) {
           e.printStackTrace();
@@ -68,12 +68,12 @@ public class ICCreator extends Drawable {
   }
   
   private String generateIC() {
-    String res = "1\n" + getName() + "\n" + Circuit.exportStr(Main.mainBoard.gates);
+    String res = "I\n1\n" + getName() + "\n" + Circuit.exportStr(Main.mainBoard.gates);
     String[] is = inpf.getText().split(" ");
     String[] os = outf.getText().split(" ");
     res+= is.length + "\n" + Main.join(is, "\n") + "\n"
        +  os.length + "\n" + Main.join(os, "\n") + "\n--\n--";
-    System.out.println(res);
+//    System.out.println(res);
     return res;
   }
   

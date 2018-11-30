@@ -187,6 +187,8 @@ public abstract class Circuit extends Drawable {
     try {
       unselectAll();
       HashMap<Integer, Gate> m = new HashMap<>();
+      String key = sc.nextLine();
+      if (!key.equals("G")) throw new LoadException("Not a gate list!");
       int gam = Integer.parseInt(sc.nextLine());
       for (int i = 0; i < gam; i++) {
         String name = sc.nextLine();
@@ -217,8 +219,7 @@ public abstract class Circuit extends Drawable {
   
   public static String exportStr(ArrayList<Gate> gs) { // outputs a trailing newline
     HashMap<Gate, Integer> m = new HashMap<>();
-    StringBuilder o = new StringBuilder();
-    o.append(gs.size()).append("\n");
+    StringBuilder o = new StringBuilder("G\n" + gs.size() + "\n");
     float lx = Float.POSITIVE_INFINITY, ly = Float.POSITIVE_INFINITY, bx = Float.NEGATIVE_INFINITY, by = Float.NEGATIVE_INFINITY;
     for (Gate g : gs) {
       if (g.x < lx) lx = g.x;

@@ -34,6 +34,9 @@ public class CustomGateFactory {
   
   public static void load(Scanner sc) throws LoadException {
     try {
+  
+      String key = sc.nextLine();
+      if (!key.equals("I")) throw new LoadException("Not an IC list!");
       int icam = Integer.parseInt(sc.nextLine());
       for (int i = 0; i < icam; i++) {
         String name = sc.nextLine();

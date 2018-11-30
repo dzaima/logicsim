@@ -1,6 +1,6 @@
 package logicsim;
 
-import logicsim.gates.CustomGate;
+import logicsim.gates.*;
 import logicsim.gui.*;
 import logicsim.gui.Menu;
 import processing.core.*;
@@ -22,7 +22,7 @@ public class EditableCircuit extends Circuit {
   
   @Override
   public void draw(PGraphics g) {
-    if (selected.size() == 1) {
+    if (selected.size() == 1 && (selected.get(0) instanceof SwitchGate || selected.get(0) instanceof LampGate)) {
       if (menuGate == null) add(menu);
       menuGate = selected.get(0);
       if (menuGate != menu.tf.g) {
@@ -83,7 +83,7 @@ public class EditableCircuit extends Circuit {
           err.printStackTrace();
         }
         break;
-      case 'c':
+      case 'p':
         Main.next = new HashSet<>();
         break;
       case 'l':
@@ -123,7 +123,7 @@ public class EditableCircuit extends Circuit {
     }
     
     String gen() {
-      StringBuilder res = new StringBuilder(reqs.size() + "\n");
+      StringBuilder res = new StringBuilder("I\n" + reqs.size() + "\n");
       for(CustomGateFactory s : reqs) {
         res.append(s.generateLib()).append("\n");
       }
