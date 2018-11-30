@@ -17,3 +17,7 @@ Very much based on [logic.ly](https://logic.ly).
 - l - copy all the ICs to clipboard
 - delete - deletes selected things
 - ctrl+I - import integrated circuits
+
+## To run,
+1. `./build`
+2. `./run`
