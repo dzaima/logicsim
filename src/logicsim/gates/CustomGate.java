@@ -9,7 +9,7 @@ import java.awt.*;
 import static logicsim.wiretypes.BasicWire.BasicConnection;
 
 public class CustomGate extends Gate {
-  private final CustomGateFactory f;
+  public final CustomGateFactory f;
   private Gate[] igs;
   private Gate[] ogs;
   private ROCircuit c;
@@ -144,30 +144,40 @@ public class CustomGate extends Gate {
     }
     
     g.textSize(10);
+    
+    
     g.textAlign(g.LEFT, g.CENTER);
     int textcol = Main.TEXT_COLOR & 0xffffff | mask;
+    
+    g.stroke(Main.CIRCUIT_BORDERS);
+    for (int i = 0; i < its.length; i++) {
+      float cy = (i - its.length / 2f + .5f) * 20;
+      g.line(-width, cy, -width - 20, cy);
+    }
+    for (int i = 0; i < ots.length; i++) {
+      float cy = (i - ots.length / 2f + .5f) * 20;
+      g.line(width, cy, width + 20, cy);
+    }
+  
+  
+  
+    g.fill(textcol);
     if (textcol < 0 || textcol > 255) {
       for (int i = 0; i < its.length; i++) {
         float cy = (i - its.length / 2f + .5f) * 20;
-        g.fill(Main.CIRCUIT_COLOR);
-        g.line(-width, cy, -width - 20, cy);
-    
-        g.fill(textcol);
         g.text(f.ins[i], -width + 2, cy - 1);
       }
+  
       g.textAlign(g.RIGHT, g.CENTER);
-      for (int i = 0; i < ots.length; i++) { // labels
+      for (int i = 0; i < ots.length; i++) {
         float cy = (i - ots.length / 2f + .5f) * 20;
-        g.fill(Main.CIRCUIT_COLOR);
-        g.line(width, cy, width + 20, cy);
-        g.fill(textcol);
         g.text(f.ons[i], width - 2, cy - 1);
       }
     }
     g.pushMatrix();
-//      g.translate(x, y);
       g.rotate(PConstants.HALF_PI);
       g.textAlign(PConstants.CENTER, PConstants.CENTER);
+      g.fill(textcol==0? 0x00ffffff : textcol);
       g.text(f.name, 0, 0);
     g.popMatrix();
     drawIO(g);

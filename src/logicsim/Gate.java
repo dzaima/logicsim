@@ -1,6 +1,5 @@
 package logicsim;
 
-import org.jetbrains.annotations.Contract;
 import processing.core.*;
 
 import java.util.Scanner;
@@ -13,7 +12,7 @@ public abstract class Gate {
   protected final WireType[] its;
   protected final WireType[] ots;
   protected float x, y;
-  public String name;
+  public String name = "";
   final protected PVector[] ips, ops;
   PVector[] ipsr, opsr;
   
@@ -75,7 +74,6 @@ public abstract class Gate {
     
     drawIO(g);
   }
-  @Contract(pure = true)
   public boolean in(float mx, float my) {
     return Math.abs(mx-x) < 20 && Math.abs(my-y) < 20;
   }

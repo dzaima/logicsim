@@ -1,6 +1,5 @@
 package logicsim;
 
-import org.jetbrains.annotations.*;
 import processing.core.PGraphics;
 
 public abstract class Connection {
@@ -14,7 +13,7 @@ public abstract class Connection {
     this.out = new Gate[0];
   }
   
-  public void addWarnable(@NotNull Gate g) {
+  public void addWarnable(Gate g) {
 //    System.out.println(this+" ADD "+g);
     if (contains(g)) return;
     Gate[] nout = new Gate[out.length+1];
@@ -23,7 +22,7 @@ public abstract class Connection {
     out = nout;
   }
   
-  void removeWarnable(@NotNull Gate g) {
+  void removeWarnable(Gate g) {
 //    System.out.println(this+" RM "+g);
     if (!contains(g)) return;
     Gate[] nout = new Gate[out.length-1];
@@ -36,8 +35,7 @@ public abstract class Connection {
   }
   
   
-  @Contract(pure = true)
-  private boolean contains(@NotNull Gate g) {
+  private boolean contains(Gate g) {
     for (Gate c : out) {
       if (c == g) return true;
     }
@@ -46,7 +44,6 @@ public abstract class Connection {
   
   protected static int[][] rotations = {{-1, 0}, {0, -1}, {1, 0}, {0, 1}};
   
-  @Contract(pure = true)
   public void draw(PGraphics g, float x1, float y1, float x2, float y2, int r1, int r2) {
     g.strokeWeight(5);
     g.stroke(Main.OFF_COLOR);

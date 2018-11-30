@@ -2,13 +2,21 @@ package logicsim;
 
 import logicsim.gates.*;
 import logicsim.gui.*;
-import logicsim.gui.Window;
 import processing.core.*;
 import processing.event.*;
 
 import java.util.*;
 @SuppressWarnings("WeakerAccess") // public things are good
 public class Main extends PApplet {
+  public static /* final but not because intellij too smart */ String MODE = JAVA2D;
+  
+  public static final int TEXTFIELD_HEIGHT = 20;
+  public static final int BUTTON_TEXT_COLOR = 0xffd2d2d2;
+  public static final float TEXTFIELD_SIZE_FACTOR = .8f;
+  
+  public static final int BUTTON_COLOR = 0xff444444;
+  public static final int BUTTON_STROKE = 0xff333333;
+  
   public static final int SELECTED = 0x606666ff;
   public static final int TEXT_COLOR = 0xff000000;
   public static final int BG = 0xffC8C8C8;
@@ -28,13 +36,14 @@ public class Main extends PApplet {
   public static final int MENUBG = 100;
   public static final int MENU_STROKE = 40;
   public static final int TEXTFIELD_COLOR = 180;
+  public static final int ICBG = 100;
   public static int ctr;
   public static Set<Gate> next;
   public static Main instance;
   public static HashMap<String, CustomGateFactory> gateLibrary;
   static HashMap<String, Gate.GateHandler> handlers;
   public static EditableCircuit mainBoard;
-  static Drawable window;
+  public static Drawable window;
   public static int mX;
   public static int mY;
   
@@ -60,17 +69,20 @@ public class Main extends PApplet {
   @Override
   public void settings() {
     instance = this;
-    size(900, 600);
+    size(1400, 800, MODE);
   }
   @Override
   public void setup() {
 //    surface.setResizable(true);
     next = new HashSet<>();
+    
     window = new Window(0, 0, width, height);
-    SelectionCircuit sc = new SelectionCircuit(0, 0, 200, height);
-    window.add(sc);
+    
     mainBoard = new EditableCircuit(200, 0, width - 200, height);
     window.add(mainBoard);
+    
+    SelectionCircuit sc = new SelectionCircuit(0, 0, 200, height);
+    window.add(sc);
     sc.add(
       new TrueGate(100, 50, 0),
       new NandGate(100, 100, 0),
@@ -96,6 +108,17 @@ public class Main extends PApplet {
   private int smb;
   @Override
   public void draw() {
+    if (!MODE.equals(FX2D)) g.noClip();
+//    try {
+//      GraphicsContext n = (GraphicsContext) g.getNative();
+//      Canvas c = n.getCanvas();
+//      Method m = Canvas.class.getDeclaredMethod("getBuffer");
+//      m.setAccessible(true);// Abracadabra
+//      GrowableDataBuffer o = (GrowableDataBuffer) m.invoke(c);// now its OK
+////      System.out.println(o.writeValuePosition() +" "+o.writeObjectPosition()+" "+o.objectCapacity());
+//    } catch (Throwable e) {
+//      e.printStackTrace();
+//    }
     mX = mouseX;
     mY = mouseY;
     if (mousePressed && !pmousePressed) { // click
@@ -131,10 +154,14 @@ public class Main extends PApplet {
     window.drawAll(g);
     
     
-    g.clip(0, 0, 200, height);
+    
+    if (!MODE.equals(FX2D)) g.clip(0, 0, 200, height);
     mainBoard.drawHeld(g);
     
-    if (frameCount%60==0) System.out.println(frameRate+" "+next.size()+" "+d);
+//    if (frameCount%60==0) System.out.println(frameRate+" "+next.size()+" "+d+" "+frameCount);
+//    if (frameCount>= 5000 && MODE.equals(PConstants.FX2D)) {
+//      System.exit(0);
+//    }
     pmousePressed = mousePressed;
 //    System.out.println(ctr);
     ctr = 0;
@@ -146,10 +173,16 @@ public class Main extends PApplet {
   }
   
   @Override
+  public void keyTyped(KeyEvent e) {
+//    System.out.println("T " + (+key)+" "+ keyCode+" "+e.isControlDown());
+    Drawable.keyD(key, keyCode, e);
+  }
+  
+  @Override
   public void keyPressed(KeyEvent e) {
-//    System.out.println((+key)+" "+ keyCode);
+//    System.out.println("P " + (+key)+" "+ keyCode+" "+e.isControlDown());
     shiftPressed = e.isShiftDown();
-    Drawable.keyD(key, keyCode);
+//    Drawable.keyD(key, keyCode, e);
     
     
   }

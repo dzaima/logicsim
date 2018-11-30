@@ -7,7 +7,7 @@ import java.util.Scanner;
 public class ROCircuit extends Circuit {
   public float lx, ly, bx, by;
   
-  ROCircuit() {
+  public ROCircuit() {
     super(0, 0, 0, 0);
   }
   

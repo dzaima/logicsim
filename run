@@ -1,0 +1,6 @@
+#!/bin/bash
+cd out/production/logicsim
+java -cp ../../../lib/*:. logicsim.Main
+cd ..
+cd ..
+cd ..

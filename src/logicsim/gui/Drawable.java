@@ -2,6 +2,7 @@ package logicsim.gui;
 
 import logicsim.Main;
 import processing.core.PGraphics;
+import processing.event.KeyEvent;
 
 import java.util.ArrayList;
 
@@ -51,7 +52,7 @@ public abstract class Drawable {
   }
   
   public void add(Drawable d) {
-    sub.add(d);
+    sub.add(0, d);
   }
   protected void remove(Drawable d) {
     sub.remove(d);
@@ -70,9 +71,9 @@ public abstract class Drawable {
   }
   
   
-  protected void key(char key, int keyCode) { }
-  public static void keyD(char key, int keyCode) {
-    if (focused != null) focused.key(key, keyCode);
+  protected void key(char key, int keyCode, KeyEvent e) { }
+  public static void keyD(char key, int keyCode, KeyEvent e) {
+    if (focused != null) focused.key(key, keyCode, e);
   }
   
   protected void mouseWheel(int c) { }

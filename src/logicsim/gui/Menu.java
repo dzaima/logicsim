@@ -9,7 +9,7 @@ public class Menu extends Drawable {
   
   public Menu(int x, int y, int w, int h) {
     super(x, y, w, h);
-    tf = new GateTF(x+20, y+60, w-40, 30);
+    tf = new GateTF(x+20, y+60, w-40, Main.TEXTFIELD_HEIGHT);
     add(tf);
   }
   

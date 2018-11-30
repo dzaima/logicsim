@@ -4,6 +4,7 @@ import logicsim.gates.CustomGate;
 import logicsim.wiretypes.BasicWire;
 import processing.core.PVector;
 
+import java.io.StringWriter;
 import java.util.*;
 
 public class CustomGateFactory {
@@ -15,7 +16,7 @@ public class CustomGateFactory {
   public final String[] ons;
   private ArrayList<CustomGate> instances;
   
-  public CustomGateFactory(ROCircuit c, String name, String[] ins, String[] ons) {
+  private CustomGateFactory(ROCircuit c, String name, String[] ins, String[] ons) {
     this.c = c;
     this.name = name;
     its = new WireType[ins.length];
@@ -31,7 +32,7 @@ public class CustomGateFactory {
     instances = new ArrayList<>();
   }
   
-  static void load(Scanner sc) throws LoadException {
+  public static void load(Scanner sc) throws LoadException {
     try {
       int icam = Integer.parseInt(sc.nextLine());
       for (int i = 0; i < icam; i++) {
@@ -48,7 +49,7 @@ public class CustomGateFactory {
   
         CustomGateFactory f = new CustomGateFactory(c, name, is.toArray(new String[0]), os.toArray(new String[0]));
         Main.gateLibrary.put(name, f);
-        Main.mainBoard.add(f.create(0, 0, 0));
+        Main.mainBoard.add(f.create(Main.mainBoard.fX(Main.mX), Main.mainBoard.fY(Main.mY), 0));
       }
     } catch (NumberFormatException e) {
       e.printStackTrace();
@@ -73,5 +74,17 @@ public class CustomGateFactory {
     CustomGate cg = new CustomGate(its.clone(), ots.clone(), x, y, rot, this, ips, ops, width, height);
     instances.add(cg);
     return cg;
+  }
+  
+  String generateLib() { // no trailing newline
+    StringBuilder res = new StringBuilder();
+    res.append(name).append("\n");
+    res.append(Circuit.exportStr(c.gates));
+    res.append(ins.length).append("\n");
+    for(String c : ins) res.append(c).append("\n");
+    res.append(ons.length).append("\n");
+    for(String c : ons) res.append(c).append("\n");
+    res.append("--\n--");
+    return res.toString();
   }
 }

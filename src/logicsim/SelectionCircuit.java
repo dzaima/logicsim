@@ -3,10 +3,10 @@ package logicsim;
 import logicsim.gui.Drawable;
 import processing.core.*;
 
-class SelectionCircuit extends Circuit {
+public class SelectionCircuit extends Circuit {
   
   
-  SelectionCircuit(int x, int y, int w, int h) {
+  public SelectionCircuit(int x, int y, int w, int h) {
     super(x, y, w, h);
   }
   
@@ -37,12 +37,12 @@ class SelectionCircuit extends Circuit {
   
   @Override
   protected void leftPressedI() {
-    float mX = fmX(Main.mX);
-    float mY = fmY(Main.mY);
+    float mX = fX(Main.mX);
+    float mY = fY(Main.mY);
     EditableCircuit mb = Main.mainBoard;
     for (Gate g : gates) {
       if (g.in(mX, mY)) {
-        Gate n = g.cloneCircuit(mb.fmX(Main.mX), mb.fmY(Main.mY));
+        Gate n = g.cloneCircuit(mb.fX(Main.mX), mb.fY(Main.mY));
         mb.add(n);
         mb.held = n;
         mb.t = HoldType.gate;

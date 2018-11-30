@@ -1,7 +1,6 @@
 package logicsim;
 
 import logicsim.gui.Drawable;
-import org.jetbrains.annotations.Contract;
 import processing.core.*;
 
 import java.util.*;
@@ -78,18 +77,18 @@ public abstract class Circuit extends Drawable {
       g.noStroke();
       g.fill(Main.SELECTED);
       g.rectMode(g.CORNERS);
-      g.rect(selectX, selectY, fmX(Main.mX), fmY(Main.mY));
+      g.rect(selectX, selectY, fX(Main.mX), fY(Main.mY));
     }
     if (held != null) {
       if (t == HoldType.out) {
         PVector p = held.opsr[heldPos];
         g.stroke(Main.CIRCUIT_BORDERS);
-        g.line(fmX(Main.mX), fmY(Main.mY), p.x+held.x, p.y+held.y);
+        g.line(fX(Main.mX), fY(Main.mY), p.x+held.x, p.y+held.y);
       }
       if (t == HoldType.in) {
         PVector p = held.ipsr[heldPos];
         g.stroke(Main.CIRCUIT_BORDERS);
-        g.line(fmX(Main.mX), fmY(Main.mY), p.x+held.x, p.y+held.y);
+        g.line(fX(Main.mX), fY(Main.mY), p.x+held.x, p.y+held.y);
       }
     }
     pmx = Main.mX;
@@ -105,18 +104,18 @@ public abstract class Circuit extends Drawable {
   boolean mmpressed;
   Gate held;
   
-  float fmX(float mX) {
+  public float fX(float mX) {
     return mX/scale + offX;
   }
-  float fmY(float mY) {
+  public float fY(float mY) {
     return mY/scale + offY;
   }
   
   private Gate clicked;
   @Override
   public void rightPressedI() {
-    float mX = fmX(Main.mX);
-    float mY = fmY(Main.mY);
+    float mX = fX(Main.mX);
+    float mY = fY(Main.mY);
     for (int i = gates.size()-1; i>=0; i--) {
       Gate g = gates.get(i);
       if (g.in(mX, mY)) {
@@ -147,8 +146,8 @@ public abstract class Circuit extends Drawable {
   
   @Override
   public void simpleClickI() {
-    float mX = fmX(Main.mX);
-    float mY = fmY(Main.mY);
+    float mX = fX(Main.mX);
+    float mY = fY(Main.mY);
     for (int i = gates.size()-1; i>=0; i--) {
       Gate g = gates.get(i);
       if (g.in(mX, mY)) {
@@ -184,7 +183,7 @@ public abstract class Circuit extends Drawable {
   }
   
   
-  void importStr(Scanner sc, float x, float y) throws LoadException {
+  public void importStr(Scanner sc, float x, float y) throws LoadException {
     try {
       unselectAll();
       HashMap<Integer, Gate> m = new HashMap<>();
@@ -216,8 +215,7 @@ public abstract class Circuit extends Drawable {
     }
   }
   
-  @Contract(pure = true)
-  static String exportStr(ArrayList<Gate> gs) {
+  public static String exportStr(ArrayList<Gate> gs) { // outputs a trailing newline
     HashMap<Gate, Integer> m = new HashMap<>();
     StringBuilder o = new StringBuilder();
     o.append(gs.size()).append("\n");
@@ -269,8 +267,8 @@ public abstract class Circuit extends Drawable {
   private int heldPos;
   @Override
   protected void leftPressedI() {
-    float mX = fmX(Main.mX);
-    float mY = fmY(Main.mY);
+    float mX = fX(Main.mX);
+    float mY = fY(Main.mY);
     lmpressed = true;
     for (int i = gates.size()-1; i>=0; i--) {
       Gate g = gates.get(i);
@@ -300,8 +298,8 @@ public abstract class Circuit extends Drawable {
   @Override
   public void leftReleasedI() {
 //    unselectAll();
-    float mX = fmX(Main.mX);
-    float mY = fmY(Main.mY);
+    float mX = fX(Main.mX);
+    float mY = fY(Main.mY);
     if (t == HoldType.out) {
       WireType type = held.ots[heldPos];
       for (int i = gates.size()-1; i>=0; i--) {
